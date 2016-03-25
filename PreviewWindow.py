@@ -3,10 +3,20 @@ import ttk
 
 class PreviewWindow(tk.Toplevel):
 	""" The PreviewWindow class is used to display the desired pattern in the well. """
-	def __init__(self, master, **settings):
-		tk.Toplevel.__init__(self, master)
+	def __init__(self, parent, master=None, **settings):
+		tk.Toplevel.__init__(self, parent)
+		# Set any bindings for keyboard shortcuts
 		self.bind('<Return>', self.close_preview)
-		self.master = master
+
+		# Specify hierarchy
+		self.parent = parent # parent widget
+		if master == None:
+			self.master = parent # master is App unless specified otherwise
+		else:
+			self.master = master
+
+		print self.parent, self.master
+		self.grab_set()
 
 		# Initialize Preview Window
 		self.init_window() # Not sure how I feel about this function - might remove it
@@ -27,6 +37,7 @@ class PreviewWindow(tk.Toplevel):
 		# X Placement
 		# Y Dimension
 		# Y Placement
+
 		self.shape_label = settings["Pattern"].get()
 		if self.shape_label == "Rectangle":
 			self.shape = Rectangle(self.px_per_mm, self.center, self.well_diameter, [settings["X Dimension"].get(),settings["Y Dimension"].get()], 

@@ -5,17 +5,22 @@ from PreviewWindow import *
 
 class LayerBuildWindow(tk.Toplevel):
 	""" The LayerBuildWindow class uses tk.Toplevel to create a user-interface for inputting layer information"""
-	def __init__(self, master, selectedEntry=None, **prevSettings):
+	def __init__(self, parent, master=None, selectedEntry=None, **prevSettings):
 		tk.Toplevel.__init__(self, master)
 		# Set any bindings for keyboard shortcuts
 		self.bind('<Return>',self.submit)
 		self.bind('<Escape>',self.cancel)
 
+		# Specify hierarchy
+		self.parent = parent # parent widget
+		if master == None:
+			self.master = parent
+		else:
+			self.master = master
+
 		# Initialize the LayerBuildWindow
-		self.master = master # App is received as master of LayerBuildWindow instance
 		self.resizable(0,0) # Make the window non-resizable
 		self.geometry("410x400")
-		self.grab_set()
 
 		# Set a flag that indicates whether the user is editing a layer - could also just check if prevSettings exist
 		if prevSettings:
@@ -188,7 +193,7 @@ class LayerBuildWindow(tk.Toplevel):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
 			self.createPopUpMsgBox("Error","Non-zero dimensions must be set to preview.")
 		else:
-			self.previewWindow = PreviewWindow(self.master, **self.varsDict)
+			self.previewWindow = PreviewWindow(self.parent, **self.varsDict)
 
 	def cancel(self,event=None):
 		self.destroy()
