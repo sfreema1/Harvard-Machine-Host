@@ -187,6 +187,9 @@ class LayerBuildWindow(tk.Toplevel):
 
 	########## Methods ##########
 	def submit(self,event=None):
+		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
+			self.createPopUpMsgBox("Error","Non-zero dimensions must be selected to add a new layer.")
+		
 		self.destroy()
 
 	def preview(self):
@@ -207,8 +210,8 @@ class LayerBuildWindow(tk.Toplevel):
 	def select_freeform(self):
 		self.varsDict["Pattern"].set("Freeform")
 
-	def createPopUpMsgBox(self,title,msg):
-		tkMessageBox.showinfo(title,msg)
+	def createPopUpMsgBox(self, title, msg):
+		tkMessageBox.showinfo(title, msg)
 
 
 if __name__ == "__main__":

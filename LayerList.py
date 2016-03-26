@@ -1,6 +1,7 @@
 import Tkinter as tk
 import ttk
 from LayerWindow import *
+from GlobalVariables import *
 
 class LayerListFrame(tk.Frame):
 	""" The LayerListFrame class contains the buttons and listbox that are modified when a user adds a layer to be printed. It interacts with the PlanExperiment class to pass information to visualize the experiment """
@@ -20,8 +21,10 @@ class LayerListFrame(tk.Frame):
 		self.top_frame.pack(side="top")
 
 		# Create a label
-		self.test_label = tk.Label(self.top_frame, text="Click on the buttons to create/edit layers")
-		self.test_label.pack(side="top")
+		self.label = tk.Label(self.top_frame, text="Click on the buttons to create/edit layers")
+		self.label.pack(side="top")
+		self.sel_well_label = tk.Label(self.top_frame, text="Selected well: %s%i" % (ABC[parent.sel_well_index[0]],parent.sel_well_index[1]+1))
+		self.sel_well_label.pack(side="top")
 
 		# Add all the buttons
 		self.new_button = ttk.Button(self.top_frame, text="New", command=self.add_layer)
@@ -32,9 +35,9 @@ class LayerListFrame(tk.Frame):
 		self.copy_button.pack(side="left")
 		self.delete_button = ttk.Button(self.top_frame, text="Delete")
 		self.delete_button.pack(side="left")
-		self.move_up_button = ttk.Button(self.top_frame, text="Move Up")
+		self.move_up_button = ttk.Button(self.top_frame, text="Down")
 		self.move_up_button.pack(side="left")
-		self.move_down_button = ttk.Button(self.top_frame, text="Move Down")
+		self.move_down_button = ttk.Button(self.top_frame, text="Up")
 		self.move_down_button.pack(side="left")
 
 		# Add separate frame to contain listbox and its scrollbar
@@ -55,7 +58,16 @@ class LayerListFrame(tk.Frame):
 
 		########### Methods ##########
 	def add_layer(self):
-		self.layer_build_window = LayerBuildWindow(self.parent) # I pass App as master of LayerBuildWindow instance
+		self.layer_build_window = LayerBuildWindow(parent) # I pass App as master of LayerBuildWindow instance
 
 	def edit_layer(self):
 		pass
+
+if __name__ == "__main__":
+
+	root = tk.Tk()
+	layer_list = LayerListFrame(root)
+	layer_list.pack(fill="both", expand=True)
+	root.mainloop()
+
+
