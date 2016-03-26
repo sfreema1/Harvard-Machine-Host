@@ -11,11 +11,10 @@ class PreviewWindow(tk.Toplevel):
 		# Specify hierarchy
 		self.parent = parent # parent widget
 		if master == None:
-			self.master = parent # master is App unless specified otherwise
+			self.master = parent
 		else:
 			self.master = master
 
-		print self.parent, self.master
 		self.grab_set()
 
 		# Initialize Preview Window
