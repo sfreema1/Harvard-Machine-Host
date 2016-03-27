@@ -2,14 +2,15 @@ import Tkinter as tk
 import ttk
 import tkMessageBox
 from PreviewWindow import *
+from GlobalVariables import *
 
 class LayerBuildWindow(tk.Toplevel):
 	""" The LayerBuildWindow class uses tk.Toplevel to create a user-interface for inputting layer information"""
-	def __init__(self, parent, master=None, selectedEntry=None, **prevSettings):
+	def __init__(self, parent, master=None, layer_ind=None, **prevSettings):
 		tk.Toplevel.__init__(self, master)
 		# Set any bindings for keyboard shortcuts
-		self.bind('<Return>',self.submit)
-		self.bind('<Escape>',self.cancel)
+		#self.bind('<Return>',self.submit)
+		#self.bind('<Escape>',self.cancel)
 
 		# Specify hierarchy
 		self.parent = parent # parent widget
@@ -25,6 +26,7 @@ class LayerBuildWindow(tk.Toplevel):
 		# Set a flag that indicates whether the user is editing a layer - could also just check if prevSettings exist
 		if prevSettings:
 			self.editFlag = True
+			self.layer_ind = layer_ind
 		else:
 			self.editFlag = False
 
@@ -35,7 +37,7 @@ class LayerBuildWindow(tk.Toplevel):
 			self.title("Create new layer")
 
 		# Image Dictionary
-		self.imageDict = {	"Square": tk.PhotoImage(file="square.gif"), 
+		self.images = {	"Square": tk.PhotoImage(file="square.gif"), 
 							"Circle": tk.PhotoImage(file="circle.gif"), 
 							"Freeform": tk.PhotoImage(file="free.gif")	}
 
@@ -47,7 +49,7 @@ class LayerBuildWindow(tk.Toplevel):
 							"X Dimension":tk.DoubleVar(), "Y Dimension":tk.DoubleVar()}
 
 		# Default Variable Values Dictionary
-		self.defaultVarsDict = {	"Layer Name":"New Layer", "Pattern":"Square",
+		self.defaultVarsDict = {	"Layer Name":"New Layer", "Pattern":"Ellipse",
 									"Channel":1, "Resolution": 200,
 									"X Placement":0, "Y Placement":0,
 									"Horizontal Alignment":0, "Vertical Alignment":0,
@@ -154,11 +156,11 @@ class LayerBuildWindow(tk.Toplevel):
 		self.pattern = tk.LabelFrame(self, text="Pattern")
 		self.pattern.pack(fill="both", side="top", expand=True)
 		# Buttons to select pattern geometry - Square, Circle, Freeform
-		self.squareButton = tk.Button(self.pattern, image=self.imageDict["Square"], command=self.select_square)
+		self.squareButton = tk.Button(self.pattern, image=self.images["Square"], command=self.select_square)
 		self.squareButton.grid(row=0, column=0)
-		self.circleButton = tk.Button(self.pattern, image=self.imageDict["Circle"], command=self.select_circle)
+		self.circleButton = tk.Button(self.pattern, image=self.images["Circle"], command=self.select_circle)
 		self.circleButton.grid(row=0, column=1)
-		self.freeButton = tk.Button(self.pattern, image=self.imageDict["Freeform"], command=self.select_freeform)
+		self.freeButton = tk.Button(self.pattern, image=self.images["Freeform"], command=self.select_freeform)
 		self.freeButton.grid(row=0, column=2)
 
 
@@ -189,8 +191,16 @@ class LayerBuildWindow(tk.Toplevel):
 	def submit(self,event=None):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
 			self.createPopUpMsgBox("Error","Non-zero dimensions must be selected to add a new layer.")
-		
-		self.destroy()
+			return
+		else:
+			row = self.parent.sel_well_ind[0]
+			col = self.parent.sel_well_ind[1]
+			if self.editFlag and self.layer_ind is not None:
+				self.parent.exp[row][col][self.layer_ind] = self.varsDict
+			else:
+				self.parent.exp[row][col].append(self.varsDict)
+			self.parent.layer_list_frame.update_listbox()
+			self.destroy()
 
 	def preview(self):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
