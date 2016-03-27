@@ -15,7 +15,7 @@ class ExperimentConstructionFrame(tk.Frame):
 
 		# Set the dimensions of the frame
 		self.frame_width = 900
-		self.frame_height = 700
+		self.frame_height = 610
 
 		# Configure the dimensions of the frame
 		self.config(width=self.frame_width, height=self.frame_height)
@@ -26,14 +26,13 @@ class ExperimentConstructionFrame(tk.Frame):
 		self.canvas.pack(fill="both", expand=True)
 
 		# Offset
-		self.offset = 10
+		self.offset = 25
 
 		# Calculate what the length of the plate will be assuming that it will use all the frame width minus 2*offsets
 		self.plate_length = self.frame_width-2*self.offset #px
 
 		# Calculate scale (pixels per mm)
-		self.pixel_per_mm = self.plate_length/(DIMENSIONS[parent.p_config]["Dimension"][0])
-		print "There are %r pixels per mm" % self.pixel_per_mm
+		self.pixel_per_mm = self.plate_length/(DIMENSIONS[self.parent.p_config]["Dimension"][0])
 
 		# With scale, calculate the width of the plate (width of plate will be parallel to height of frame)
 		self.plate_width = DIMENSIONS[parent.p_config]["Dimension"][1]*self.pixel_per_mm
@@ -48,9 +47,7 @@ class ExperimentConstructionFrame(tk.Frame):
 		self.well_offset = DIMENSIONS[parent.p_config]["A1 Offset"]
 		self.well_offset[0] *= self.pixel_per_mm
 		self.well_offset[1] *= self.pixel_per_mm
-		print self.well_offset
 		self.well_center = [self.offset+self.well_offset[1], self.offset+self.well_offset[0]]
-		print self.well_center
 		self.well_diameter = self.pixel_per_mm*DIMENSIONS[self.parent.p_config]["Well Diameter"]
 		self.c_to_c = DIMENSIONS[parent.p_config]["Center-to-Center Spacing"]*self.pixel_per_mm
 
@@ -59,14 +56,13 @@ class ExperimentConstructionFrame(tk.Frame):
 				self.well_bbox = [(j*self.c_to_c)+self.well_center[0]-(self.well_diameter/2), (i*self.c_to_c)+self.well_center[1]-(self.well_diameter/2), 
 									(j*self.c_to_c)+self.well_center[0]+(self.well_diameter/2), (i*self.c_to_c)+self.well_center[1]+(self.well_diameter/2)]
 				self.canvas.create_oval(self.well_bbox,fill="purple", tags="%s%i"%(ABC[i],j+1))
-				print "%s%i" % (ABC[i],j+1)
 				self.canvas.tag_bind("%s%i" % (ABC[i],j+1), '<Button-1>', lambda event, loc=[i,j]:self.selectWell(event, loc))
 
 	########## Methods ##########
 	def selectWell(self, event, loc):
-		self.parent.sel_well_index = loc
-		print "You selected me, well %r!" % self.parent.sel_well_index
+		self.parent.sel_well_ind = loc
 		self.parent.layer_list_frame.sel_well_label.config(text="Selected well: %s%i" % (ABC[loc[0]],loc[1]+1))
+		self.parent.layer_list_frame.update_listbox()
 
 
 

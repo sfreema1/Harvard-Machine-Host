@@ -1,5 +1,6 @@
 import Tkinter as tk
 import ttk
+from GlobalVariables import * #3144
 
 class PreviewWindow(tk.Toplevel):
 	""" The PreviewWindow class is used to display the desired pattern in the well. """
@@ -81,7 +82,7 @@ class PreviewWindow(tk.Toplevel):
 		self.start_coord = self.offset, self.offset
 
 		# Calculate scaling
-		self.well_diameter = 34.8 # mm
+		self.well_diameter = DIMENSIONS[self.parent.p_config]["Well Diameter"]
 		self.px_per_mm = (self.frame_coord[3]-self.frame_coord[0])/self.well_diameter
 		self.mm_per_px = self.well_diameter/(self.frame_coord[3]-self.frame_coord[0])
 
@@ -104,7 +105,7 @@ class PreviewWindow(tk.Toplevel):
 		self.canvas.bind("<Motion>", self.show_coordinates)
 
 		# Draw well type
-		self.text_well_size = "35 mm"
+		self.text_well_size = self.parent.p_config
 		self.text_well_size_coord = self.text_offset, self.text_offset
 		self.text_well_type = self.canvas.create_text(self.text_well_size_coord, text="Well type: %s" % self.text_well_size, anchor="nw")
 
