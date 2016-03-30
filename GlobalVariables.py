@@ -20,10 +20,36 @@ DIMENSIONS = {	"Glass":{"Dimension":[200,200]},
 				"96 Well":{"Layout":[8,12], "Well Depth":10.67, "Well Diameter":6.35, "Dimension":[127.8,85.5,14.2], "A1 Offset":[11.2,14.3], "Center-to-Center Spacing":9} }
 
 # Newmark: Steps per mm
-STEPS_PER_MM =31496.063		# motor steps per mm
+N_STEPS_PER_MM = 31496.063		# motor steps per mm
+
+# Newmark Serial Baudrate
+NEWMARK_BAUDRATE = 19200 # bits per sec
+
+# Arduino Serial Baudrate
+ARDUINO_BAUDRATE = 115200 # bits per sec
+
+# Translate between XYZ axes and ABC axes
+HOME_TRANSLATE = {"X" : "A", "Y": "B", "Z": "C", "XYZ": "ABC", "XY": "AB", "YZ": "BC", "XZ": "AC"}
 
 ########## COLORS (Hex Color Codes) ############
 CTRL_TOP_BG = "#D3F723" 
 CTRL_MID_BG = "#D3F723"
 CTRL_BOT_BG = "#545994"
+
+LAYER_TOP_BG = "#AAAAAA"
+LAYER_LISTBOX_BG = "#BBBBBB"
+LAYER_BOT_BG = "#AAAAAA"
+
+TEXTBOX_BG = "#FFFBF7"
+
+EXP_BG = "#BFB6A4"
+PLATE_BG = "#2E4272"
+WELL_COLOR = "#54a3b4"
+ACT_WELL_COLOR = "#0D4D4D" #"#407F7F"
+SEL_WELL_COLOR = "#0D4D4D"
+
+TEXT_PREVIEW_COLOR = "#FBF100"
+
+
+
 

@@ -1,217 +1,226 @@
 import Tkinter as tk
 import ttk
-from GlobalVariables import * #3144
+from GlobalVariables import *
 
 class PreviewWindow(tk.Toplevel):
 	""" The PreviewWindow class is used to display the desired pattern in the well. """
 	def __init__(self, parent, master=None, **settings):
 		tk.Toplevel.__init__(self, parent)
-		# Set any bindings for keyboard shortcuts
-		self.bind('<Return>', self.close_preview)
+		# Specify hierarchy - IMPORTANT TO DO FIRST
+		self.parent = parent # parent widget
+		if master == None:
+			self.master = parent
+		else:
+			self.master = master
+		# ===================== WINDOW VARIABLES ===================== #
+		self.tags_list = []		# Could be used later to target specific shapes drawn to the canvas
+		# ========== IMPORTED VARIABLES ========= #
+		# Get current row and column plate selection
+		self.cur_row = self.master.sel_ind[0] 	# row in plate
+		self.cur_col = self.master.sel_ind[1]	# column in plate
+		# Get well/print surface type
+		self.b_config = self.master.b_config	# Print build config
+		self.prev_vars = settings
 
-		# Specify hierarchy
+		# ========== FRAME PARAMETERS ========== #
+		self.name = "Preview well" 								# Text that appears in at the top of the app
+		self.w_width = 700										# Pixel width of main Tk window
+		self.w_height = 700										# Pixel height of main Tk window
+		self.w_center_x = self.w_width/2
+		self.w_center_y = self.w_height/2
+		self.w_center = [self.w_center_x, self.w_center_y]
+		self.w_x_offset = (self.master.scr_width-self.w_width)/2	# Pixel x offset for the Tk window
+		self.w_y_offset = (self.master.scr_height-self.w_height)/2	# Pixel y offset for the Tk window
+
+		# ==================== CLASS INITILIZATION ==================== #
+		# ========== TOPLEVEL WINDOW CONFIGURATION ========== #
+		self.wm_title(self.name)
+		self.geometry("%dx%d+%d+%d" % (self.w_width, self.w_height, self.w_x_offset, self.w_y_offset))
+		self.resizable(width=False,height=False)
+
+		# ========== CANVAS CONFIGURATION ========== #
+		# Start CanvasWell a.k.a. tk.Canvas in disguise preconfigured with a well, and coordinate display
+		self.canvas_well = CanvasWell(self,self.master)
+		self.canvas_well.pack(fill="both", expand=True)
+
+		# ========== DRAW SHAPES =========== #
+		self.draw()
+
+	def draw(self):
+		row = self.cur_row
+		col = self.cur_col
+		num_layer = len(self.master.exp[row][col])
+		# First draw any previous created layers in the well
+		if num_layer > 0:
+			for layer in range(num_layer):
+				# Quick reference variables to pass to the CanvasShape object
+				layer_vars = self.master.exp[row][col][layer]
+				dim = [layer_vars["X Dimension"].get(), layer_vars["Y Dimension"].get()]
+				offset = [layer_vars["X Placement"].get(), layer_vars["Y Placement"].get()]
+				horiz_align = layer_vars["Horizontal Alignment"].get()
+				vert_align = layer_vars["Vertical Alignment"].get()
+
+				if layer_vars["Pattern"].get() == "Rectangle":
+					shape = CanvasRectangle(self.canvas_well, dim, offset, horiz_align, vert_align,layer)
+					self.tags_list.append(shape.tag)
+				elif layer_vars["Pattern"].get() == "Ellipse":
+					shape = CanvasEllipse(self.canvas_well, dim, offset, horiz_align, vert_align,layer)
+					self.tags_list.append(shape.tag)
+
+		# Then draw the PreviewWindow Shape
+		dim = [self.prev_vars["X Dimension"].get(), self.prev_vars["Y Dimension"].get()]
+		offset = [self.prev_vars["X Placement"].get(), self.prev_vars["Y Placement"].get()]
+		horiz_align = self.prev_vars["Horizontal Alignment"].get()
+		vert_align = self.prev_vars["Vertical Alignment"].get()
+
+		if self.prev_vars["Pattern"].get() == "Rectangle":
+			shape = CanvasRectangle(self.canvas_well, dim, offset, horiz_align, vert_align)
+			self.tags_list.append(shape.tag)
+		elif self.prev_vars["Pattern"].get() == "Ellipse":
+			shape = CanvasEllipse(self.canvas_well, dim, offset, horiz_align, vert_align)
+			self.tags_list.append(shape.tag)
+
+		print self.tags_list
+
+
+class CanvasWell(tk.Canvas):
+	""" The CanvasWell class represents the well where everything is drawn inside """
+	def __init__(self, parent, master=None, **kwargs):
+		tk.Canvas.__init__(self, parent, **kwargs)
+		# Specify hierarchy - IMPORTANT TO DO FIRST
 		self.parent = parent # parent widget
 		if master == None:
 			self.master = parent
 		else:
 			self.master = master
 
-		self.grab_set()
-
-		# Initialize Preview Window
-		self.init_window() # Not sure how I feel about this function - might remove it
-
-		# Initialize Canvas and backdrop elements for drawing
-		self.init_canvas_backdrop()
-
-		##### Start drawing shape to be printed
-		# Load variable dictionary imported from LayerWindow
-		# Channel
-		# Diameter
-		# Horizontal Alignment
-		# Layer Name
-		# Pattern
-		# Resolution
-		# Vertical Alignment
-		# X Dimension
-		# X Placement
-		# Y Dimension
-		# Y Placement
-
-		self.shape_label = settings["Pattern"].get()
-		if self.shape_label == "Rectangle":
-			self.shape = Rectangle(self.px_per_mm, self.center, self.well_diameter, [settings["X Dimension"].get(),settings["Y Dimension"].get()], 
-																					[settings["X Placement"].get(),settings["Y Placement"].get()],
-																					settings["Horizontal Alignment"].get(), 
-																					settings["Vertical Alignment"].get())
-			self.canvas.create_rectangle(self.shape.shape_coord, fill="blue")
-
-		if self.shape_label == "Ellipse":
-			self.shape = Ellipse(self.px_per_mm, self.center, self.well_diameter, [settings["X Dimension"].get(),settings["Y Dimension"].get()], 
-																					[settings["X Placement"].get(),settings["Y Placement"].get()],
-																					settings["Horizontal Alignment"].get(), 
-																					settings["Vertical Alignment"].get())
-			self.canvas.create_oval(self.shape.shape_coord, fill="blue")
-
-
-	########## Methods ##########
-	def init_window(self):
-		# Initialize the LayerBuildWindow
-		self.resizable(0,0) # Make the window non-resizable
-		self.grab_set()
-		self.title("Preview well")
-
-		# Set parameters for window size
-		self.wm_width = 700
-		self.wm_height = 700
-		self.center = [self.wm_width/2, self.wm_height/2]
-
-		# Set size of PreviewWindow
-		self.geometry("%dx%d" % (self.wm_width, self.wm_height))
-
-	def init_canvas_backdrop(self):
-		# Canvas frame
-		self.canvasFrame = tk.Frame(self, padx=0, pady=0)
-		self.canvasFrame.pack(fill="both", expand=True)
-
-		# Drawn well frame dimensions
-		self.offset = 25
-		self.frame_coord = self.offset, self.offset, self.wm_width-self.offset, self.wm_height-self.offset
-
-		# Start coordinate for all drawings
-		self.start_coord = self.offset, self.offset
-
-		# Calculate scaling
-		self.well_diameter = DIMENSIONS[self.parent.p_config]["Well Diameter"]
-		self.px_per_mm = (self.frame_coord[3]-self.frame_coord[0])/self.well_diameter
-		self.mm_per_px = self.well_diameter/(self.frame_coord[3]-self.frame_coord[0])
-
-		# Start Canvas
-		self.canvas = tk.Canvas(self.canvasFrame, bg="#54a3b4", width=self.wm_width, height=self.wm_height,
-									highlightthickness=0, borderwidth=0)
-		self.canvas.pack(fill="both", expand=True)
-
-		# Draw well
-		self.well = self.canvas.create_oval(self.frame_coord,fill="grey")
-
-		# Draw text instructions
-		self.text_offset = 8
-		self.text_coord = self.text_offset, self.wm_height-self.text_offset
-		self.text_instruct = self.canvas.create_text(self.text_coord, text="Press 'Return' to exit preview", anchor="sw")
-
-		# Draw XY coordinates
-		self.text_xy_coord = self.wm_width-self.text_offset, self.wm_height-self.text_offset
-		self.text_xy = self.canvas.create_text(self.text_xy_coord, text="Coord: (X = , Y = )", anchor="se")
-		self.canvas.bind("<Motion>", self.show_coordinates)
-
-		# Draw well type
-		self.text_well_size = self.parent.p_config
-		self.text_well_size_coord = self.text_offset, self.text_offset
-		self.text_well_type = self.canvas.create_text(self.text_well_size_coord, text="Well type: %s" % self.text_well_size, anchor="nw")
-
-	def show_coordinates(self, event=None):
-		x_coord = self.mm_per_px*(event.x-(self.wm_width/2.0))
-		y_coord = self.mm_per_px*(event.y-(self.wm_height/2.0))
-		self.canvas.itemconfigure(self.text_xy, text="Coord: (X = %.3f mm, Y = %.3f mm)" % (x_coord, y_coord))
-
-	def close_preview(self,event=None):
-		self.destroy()
-
-
-class Rectangle(object):
-	""" The Rectangle class represents the geometric objects of rectangles and squares """
-	def __init__(self, scale, center, well_diameter, dim, offset, horiz_align, vert_align):
-		super(Rectangle, self).__init__()
-
-		self.scale = scale						# pixels per mm
-		print "There are %r pixels per mm in the object " % self.scale
-		self.well_center_x = center[0]		# x coordinate of well center (px)
-		self.well_center_y = center[1]		# y coordinate of well center (px)
-		print "The center's x-coord is %r and its y-coord is %r" % (self.well_center_x, self.well_center_y)
-		self.well_diameter = well_diameter		# diameter of well mm
-		print "The well's diameter is %r mm" % self.well_diameter
-
-		self.name = "Rectangle"					# Name of shape
-		self.horiz_align = horiz_align			# -1=left, 0=center, 1=right
-		self.vert_align = vert_align			# -1=botton, 0=middle, 1=top
-		print "The alignment configuration is (%r, %r)" % (self.horiz_align, self.vert_align)
-
-		self.x_offset = offset[0]				# mm
-		self.y_offset = offset[0]				# mm
-		self.x_dim = dim[0]						# mm
-		self.y_dim = dim[1]						# mm
-		print "The shape will have dimensions %r mm X %r mm and offset by %r mm and %r mm" % (self.x_dim, self.y_dim, self.x_offset, self.y_offset)
-
-		# Calculate the center of the shape
-		# X pixel coordinate
-		self.shape_center_x = self.well_center_x+(self.horiz_align*(self.well_diameter*self.scale/4))
-		# Y pixel coordinates
-		self.shape_center_y = self.well_center_y+(self.vert_align*(self.well_diameter*self.scale/4))
-		print "The desired shape center is at x coord %r and y coord %r" % (self.shape_center_x, self.shape_center_y)
-		# Shift the center of the shape by offsets
-		self.shape_center_x += self.x_offset*self.scale
-		self.shape_center_y += self.y_offset*self.scale
-		print "The offset shifts the shape center to x coord %r and y coord %r" % (self.shape_center_x, self.shape_center_y)
-
-		# Calculate the start and end coordinates for the rectangle
-		self.start_x = self.shape_center_x-(self.x_dim*self.scale/2)
-		self.start_y = self.shape_center_y-(self.y_dim*self.scale/2)
-		self.end_x = self.shape_center_x+(self.x_dim*self.scale/2)
-		self.end_y = self.shape_center_y+(self.y_dim*self.scale/2)
-
-		# Compose shape bbox coordinates
-		self.shape_coord = self.start_x, self.start_y, self.end_x, self.end_y
-		print self.shape_coord
-
-
-class Ellipse(object):
-	""" The Ellipse class represents the geometric objects of ellipses and circles """
-	def __init__(self, scale, center, well_diameter, dim, offset, horiz_align, vert_align):
-		super(Ellipse, self).__init__()
-
-		self.scale = scale						# pixels per mm
-		print "There are %r pixels per mm in the object " % self.scale
-		self.well_center_x = center[0]		# x coordinate of well center (px)
-		self.well_center_y = center[1]		# y coordinate of well center (px)
-		print "The center's x-coord is %r and its y-coord is %r" % (self.well_center_x, self.well_center_y)
-		self.well_diameter = well_diameter		# diameter of well mm
-		print "The well's diameter is %r mm" % self.well_diameter
-
-		self.name = "Ellipse"					# Name of shape
-		self.horiz_align = horiz_align			# -1=left, 0=center, 1=right
-		self.vert_align = vert_align			# -1=botton, 0=middle, 1=top
-		print "The alignment configuration is (%r, %r)" % (self.horiz_align, self.vert_align)
-
-		self.x_offset = offset[0]				# mm
-		self.y_offset = offset[0]				# mm
-		self.x_dim = dim[0]						# mm
-		self.y_dim = dim[1]						# mm
-		print "The shape will have dimensions %r mm X %r mm and offset by %r mm and %r mm" % (self.x_dim, self.y_dim, self.x_offset, self.y_offset)
-
-		# Calculate the center of the shape
-		# X pixel coordinate
-		self.shape_center_x = self.well_center_x+(self.horiz_align*(self.well_diameter*self.scale/4))
-		# Y pixel coordinates
-		self.shape_center_y = self.well_center_y+(self.vert_align*(self.well_diameter*self.scale/4))
-		print "The desired shape center is at x coord %r and y coord %r" % (self.shape_center_x, self.shape_center_y)
-		# Shift the center of the shape by offsets
-		self.shape_center_x += self.x_offset*self.scale
-		self.shape_center_y += self.y_offset*self.scale
-		print "The offset shifts the shape center to x coord %r and y coord %r" % (self.shape_center_x, self.shape_center_y)
-
-		# Calculate the start and end coordinates for the rectangle
-		self.start_x = self.shape_center_x-(self.x_dim*self.scale/2)
-		self.start_y = self.shape_center_y-(self.y_dim*self.scale/2)
-		self.end_x = self.shape_center_x+(self.x_dim*self.scale/2)
-		self.end_y = self.shape_center_y+(self.y_dim*self.scale/2)
-
-		# Compose shape bbox coordinates
-		self.shape_coord = self.start_x, self.start_y, self.end_x, self.end_y
-		print self.shape_coord
-
-
+		# ========== CANVAS PARAMETERS ========== #
+		self.c_offset = 25						# Adds some spacing between the edge of the canvas and where items are draw
+		self.text_offset = 8 					# Adds some spacing beween the edge of the canvas and where text is placed
+		self.b_type = self.master.b_config 		# Kind of build surface (well or glass or dish etc)
+		# Delimits the draw area
+		self.bbox = [self.c_offset, self.c_offset, self.parent.w_width-self.c_offset, self.parent.w_height-self.c_offset]
+		self.diameter = DIMENSIONS[self.b_type]["Well Diameter"]
+		self.center_x = self.parent.w_center_x
+		self.center_y = self.parent.w_center_y
+		self.center = self.parent.w_center
+		# Scaling
+		self.px_per_mm = (self.bbox[3]-self.bbox[0])/self.diameter
+		self.mm_per_px = self.diameter/(self.bbox[3]-self.bbox[0])
+		# Label placement
+		self.label_coord = [self.text_offset, self.text_offset]
+		# XY display placement
+		self.xy_label_coord = [self.parent.w_width-self.text_offset, self.parent.w_height-self.text_offset]
 		
+		# ========== CANVAS WELL INITIALIZATION ========== #
+		self.config(bg=PLATE_BG, width=self.parent.w_width, height=self.parent.w_height, highlightthickness=0, borderwidth=0)
+		self.bind("<Motion>", self.show_coordinates)
+		# Draw itself (The well)
+		self.well = self.create_oval(self.bbox,fill=WELL_COLOR)
+		# Draw label for build type
+		self.label = self.create_text(self.label_coord, text="Print Build Surface: %s" % self.b_type, anchor="nw", fill=TEXT_PREVIEW_COLOR)
+		# Draw coordinate display
+		self.xy_label = self.create_text(self.xy_label_coord,text="Coord: (X = ? mm, Y = ? mm)", anchor="se", fill=TEXT_PREVIEW_COLOR)
 
+		# ========== CLASS METHODS ========== #
+	def show_coordinates(self, event=None):
+		x_coord = self.mm_per_px*(event.x-(self.parent.w_width/2.0))
+		y_coord = self.mm_per_px*(event.y-(self.parent.w_height/2.0))
+		self.itemconfigure(self.xy_label, text="Coord: (X = %.3f mm, Y = %.3f mm)" % (x_coord, y_coord))
+
+
+class CanvasRectangle(object):
+	""" The Rectangle class represents the geometric objects of rectangles and squares """
+	def __init__(self, canvas_well, dim, offset, horiz_align, vert_align, layer=None):
+		super(CanvasRectangle, self).__init__()
+		# ========== IMPORTED VARIABLES ========== #
+		self.canvas = canvas_well
+		self.well_center_x = canvas_well.center[0]		# x coordinate of well center (px)
+		self.well_center_y = canvas_well.center[1]		# y coordinate of well center (px)
+		self.well_diameter = canvas_well.diameter		# diameter of well mm
+		self.scale = canvas_well.px_per_mm 				# Conversion from mm to pixels
+
+		# ========= SHAPE PARAMETERS ========== #
+		self.name = "Rectangle"					# Name of shape
+
+		if layer is not None:
+			self.tag = "Layer%s" % (layer+1) 	# Define a tag to be bound to the shape if it is an already set layer from the layer list
+			self.label = (layer+1)
+		else:
+			self.tag = "Preview"				# Otherwise, tag the shape as preview since it has not been yet added to the list
+			self.label = self.tag
+
+		self.horiz_align = horiz_align			# -1=left, 0=center, 1=right
+		self.vert_align = vert_align			# -1=botton, 0=middle, 1=top
+		self.x_offset = offset[0]				# X-offset in mm
+		self.y_offset = offset[1]				# Y-offset in mm
+		self.x_dim = dim[0]						# X-dimension in mm
+		self.y_dim = dim[1]						# Y-dimension in mm
+		# Calculate the center of the shape
+		# X pixel coordinate
+		self.center_x = self.well_center_x+(self.horiz_align*(self.well_diameter*self.scale/4))
+		self.center_x += self.x_offset*self.scale
+		# Y pixel coordinates
+		self.center_y = self.well_center_y+(self.vert_align*(self.well_diameter*self.scale/4))
+		self.center_y += self.y_offset*self.scale
+		self.center = [self.center_x,self.center_y]
+		# Calculate the start and end coordinates for the rectangle
+		self.start_x = self.center_x-(self.x_dim*self.scale/2)
+		self.start_y = self.center_y-(self.y_dim*self.scale/2)
+		self.end_x = self.center_x+(self.x_dim*self.scale/2)
+		self.end_y = self.center_y+(self.y_dim*self.scale/2)
+		# Compose shape bbox coordinates
+		self.bbox = [self.start_x, self.start_y, self.end_x, self.end_y]
+		# Draw itself and its label
+		canvas_well.create_rectangle(self.bbox,fill="blue",tags=self.tag)
+		canvas_well.create_text(self.center,text=self.label, fill=TEXT_PREVIEW_COLOR)
+
+
+class CanvasEllipse(object):
+	""" The Ellipse class represents the geometric objects of ellipses and circles """
+	def __init__(self, canvas_well, dim, offset, horiz_align, vert_align, layer=None):
+		super(CanvasEllipse, self).__init__()
+		# ========== IMPORTED VARIABLES ========== #
+		self.canvas = canvas_well
+		self.well_center_x = canvas_well.center[0]		# x coordinate of well center (px)
+		self.well_center_y = canvas_well.center[1]		# y coordinate of well center (px)
+		self.well_diameter = canvas_well.diameter		# diameter of well mm
+		self.scale = canvas_well.px_per_mm 				# Conversion from mm to pixels
+
+		# ========= SHAPE PARAMETERS ========== #
+		self.name = "Ellipse"					# Name of shape
+
+		if layer is not None:
+			self.tag = "Layer%s" % (layer+1) 	# Define a tag to be bound to the shape if it is an already set layer from the layer list
+			self.label = (layer+1)
+		else:
+			self.tag = "Preview"				# Otherwise, tag the shape as preview since it has not been yet added to the list
+			self.label = self.tag
+
+		self.horiz_align = horiz_align			# -1=left, 0=center, 1=right
+		self.vert_align = vert_align			# -1=botton, 0=middle, 1=top
+		self.x_offset = offset[0]				# X-offset in mm
+		self.y_offset = offset[1]				# Y- offset in mm
+		self.x_dim = dim[0]						# X-dimension in mm
+		self.y_dim = dim[1]						# Y-dimension in mm
+		# Calculate the center of the shape
+		# X pixel coordinate
+		self.center_x = self.well_center_x+(self.horiz_align*(self.well_diameter*self.scale/4))
+		self.center_x += self.x_offset*self.scale
+		# Y pixel coordinates
+		self.center_y = self.well_center_y+(self.vert_align*(self.well_diameter*self.scale/4))
+		self.center_y += self.y_offset*self.scale
+		self.center = [self.center_x,self.center_y]
+		# Calculate the start and end coordinates for the rectangle
+		self.start_x = self.center_x-(self.x_dim*self.scale/2)
+		self.start_y = self.center_y-(self.y_dim*self.scale/2)
+		self.end_x = self.center_x+(self.x_dim*self.scale/2)
+		self.end_y = self.center_y+(self.y_dim*self.scale/2)
+		# Compose shape bbox coordinates
+		self.bbox = [self.start_x, self.start_y, self.end_x, self.end_y]
+		# Draw itself and its label
+		canvas_well.create_rectangle(self.bbox,fill="blue",tags=self.tag)
+		canvas_well.create_text(self.center,text=self.label, fill=TEXT_PREVIEW_COLOR)
 
 if __name__ == "__main__":
 

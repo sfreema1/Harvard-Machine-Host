@@ -193,20 +193,20 @@ class LayerBuildWindow(tk.Toplevel):
 			self.createPopUpMsgBox("Error","Non-zero dimensions must be selected to add a new layer.")
 			return
 		else:
-			row = self.parent.sel_well_ind[0]
-			col = self.parent.sel_well_ind[1]
+			row = self.master.sel_ind[0]
+			col = self.master.sel_ind[1]
 			if self.editFlag and self.layer_ind is not None:
-				self.parent.exp[row][col][self.layer_ind] = self.varsDict
+				self.master.exp[row][col][self.layer_ind] = self.varsDict
 			else:
-				self.parent.exp[row][col].append(self.varsDict)
-			self.parent.layer_list_frame.update_listbox()
+				self.master.exp[row][col].append(self.varsDict)
+			self.master.layer_list_frame.update_listbox()
 			self.destroy()
 
 	def preview(self):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
 			self.createPopUpMsgBox("Error","Non-zero dimensions must be set to preview.")
 		else:
-			self.previewWindow = PreviewWindow(self.parent, **self.varsDict)
+			self.previewWindow = PreviewWindow(self.master, **self.varsDict)
 
 	def cancel(self,event=None):
 		self.destroy()
