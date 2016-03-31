@@ -58,7 +58,7 @@ class ControlPanel(tk.Frame):
 		self.top_frame = tk.Frame(self,bg=CTRL_TOP_BG)
 		self.top_frame.pack(side="top",fill="both",expand=True)
 		# Label
-		self.label = tk.Label(self.top_frame,text="Manual Control",bg=CTRL_TOP_BG)
+		self.label = tk.Label(self.top_frame,text="Manual Control",fg=CTRL_TEXT,font=CTRL_FONT,bg=CTRL_TOP_BG)
 		self.label.grid(row=0,column=1)
 		# Initialization Button
 		self.init_button = tk.Label(self.top_frame,image=self.images["Init"],bg=CTRL_TOP_BG)
@@ -80,7 +80,7 @@ class ControlPanel(tk.Frame):
 		self.gcode_frame = tk.Frame(self,bg=CTRL_BOT_BG)
 		self.gcode_frame.pack(fill="both",expand=True, ipadx=5)
 		# G Code Label
-		self.gcode_label = tk.Label(self.gcode_frame,text="Enter G-code:",bg=CTRL_BOT_BG)
+		self.gcode_label = tk.Label(self.gcode_frame,text="Enter G-code:",fg=CTRL_TEXT,font=CTRL_FONT,bg=CTRL_BOT_BG)
 		self.gcode_label.grid(row=0,column=1)
 		# G Code Entry
 		self.gcode_entry = tk.Entry(self.gcode_frame,textvariable=self.gcode_var,width=35,highlightbackground=CTRL_BOT_BG)
@@ -95,10 +95,10 @@ class ControlPanel(tk.Frame):
 		self.mid_frame = tk.Frame(self,bg=CTRL_MID_BG,padx=30)
 		self.mid_frame.pack(fill="both",expand=True)
 		# XY Label
-		self.xy_label = tk.Label(self.mid_frame,text="XY Motion",bg=CTRL_MID_BG)
+		self.xy_label = tk.Label(self.mid_frame,text="XY Motion",fg=CTRL_TEXT,font=CTRL_FONT,bg=CTRL_MID_BG)
 		self.xy_label.grid(row=0,column=2)
 		# Z Label
-		self.z_label = tk.Label(self.mid_frame,text="Z Motion",bg=CTRL_MID_BG)
+		self.z_label = tk.Label(self.mid_frame,text="Z Motion",fg=CTRL_TEXT,font=CTRL_FONT,bg=CTRL_MID_BG)
 		self.z_label.grid(row=0,column=4)
 		# X Negative Motion
 		self.x_neg_button = tk.Button(self.mid_frame,image=self.images["Left"],highlightbackground=CTRL_MID_BG,
@@ -118,7 +118,7 @@ class ControlPanel(tk.Frame):
 		self.y_pos_button.grid(row=1,column=2)
 		# XY Selection Menu
 		self.xy_select = apply(tk.OptionMenu, (self.mid_frame,self.xy_var)+tuple(self.xy_opt))
-		self.xy_select.config(bg=CTRL_MID_BG)
+		#self.xy_select.config(bg=CTRL_MID_BG)
 		self.xy_select.grid(row=2, column=2)
 		# Z Negative Movement
 		self.z_neg_button = tk.Button(self.mid_frame,image=self.images["Down"],highlightbackground=CTRL_MID_BG,
@@ -130,10 +130,10 @@ class ControlPanel(tk.Frame):
 		self.z_pos_button.grid(row=1,column=4)
 		# Z Selection Menu
 		self.xy_select = apply(tk.OptionMenu, (self.mid_frame,self.z_var)+tuple(self.z_opt))
-		self.xy_select.config(bg=CTRL_MID_BG)
+		#self.xy_select.config(bg=CTRL_MID_BG)
 		self.xy_select.grid(row=2,column=4)
 		# Home Label
-		self.home_label = tk.Label(self.mid_frame,text="Home",bg=CTRL_MID_BG)
+		self.home_label = tk.Label(self.mid_frame,text="Home",fg=CTRL_TEXT,font=CTRL_FONT,bg=CTRL_MID_BG)
 		self.home_label.grid(row=5,column=3)
 		# Home Button
 		self.home_button = tk.Button(self.mid_frame,image=self.images["Home"],highlightbackground=CTRL_MID_BG,
@@ -141,7 +141,7 @@ class ControlPanel(tk.Frame):
 		self.home_button.grid(row=6,column=2)
 		# Home Selection Menu
 		self.home_select = apply(tk.OptionMenu, (self.mid_frame,self.home_var)+tuple(self.home_opt))
-		self.home_select.config(bg=CTRL_MID_BG)
+		#self.home_select.config(bg=CTRL_MID_BG)
 		self.home_select.grid(row=6,column=4)
 		
 		# =========== MOVED TO SETTINGS ========== #

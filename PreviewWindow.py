@@ -219,7 +219,7 @@ class CanvasEllipse(object):
 		# Compose shape bbox coordinates
 		self.bbox = [self.start_x, self.start_y, self.end_x, self.end_y]
 		# Draw itself and its label
-		canvas_well.create_rectangle(self.bbox,fill="blue",tags=self.tag)
+		canvas_well.create_oval(self.bbox,fill="blue",tags=self.tag)
 		canvas_well.create_text(self.center,text=self.label, fill=TEXT_PREVIEW_COLOR)
 
 if __name__ == "__main__":
