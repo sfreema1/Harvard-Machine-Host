@@ -40,9 +40,10 @@ HOME_TRANSLATE = {"X" : "A", "Y": "B", "Z": "C", "XYZ": "ABC", "XY": "AB", "YZ":
 #
 
 ########## COLORS (Hex Color Codes) ############
-CTRL_TOP_BG = "#D3F723" 
-CTRL_MID_BG = "#D3F723"
-CTRL_BOT_BG = "#545994"
+CTRL_TOP_BG = "#644079" 
+CTRL_MID_BG = "#644079"
+CTRL_BOT_BG = "#644079"
+CTRL_TEXT = "#E1D8E6"
 
 LAYER_TOP_BG = "#AAAAAA"
 LAYER_LISTBOX_BG = "#BBBBBB"
@@ -57,6 +58,11 @@ ACT_WELL_COLOR = "#0D4D4D" #"#407F7F"
 SEL_WELL_COLOR = "#0D4D4D"
 
 TEXT_PREVIEW_COLOR = "#FBF100"
+
+######### FONT ##########
+CTRL_FONT = ('Arial',10,'bold')
+
+
 
 
 

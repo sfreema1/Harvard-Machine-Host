@@ -19,7 +19,7 @@ class App(tk.Tk):
 		# ========== FRAME PARAMETERS ========== #
 		self.app_name = "My Test App" 							# Text that appears in at the top of the app
 		self.w_width = 1120										# Pixel width of main Tk window (W: 1120)
-		self.w_height = 730										# Pixel height of main Tk window (W: 730)
+		self.w_height = 745										# Pixel height of main Tk window (W: 730)
 		self.w_x_offset = (self.scr_width-self.w_width)/2	# Pixel x offset for the Tk window
 		self.w_y_offset = (self.scr_height-self.w_height)/2	# Pixel y offset for the Tk window
 		# ========== USER VARIABLES ========== #
@@ -100,12 +100,6 @@ class App(tk.Tk):
 
 		#========== SETTINGS TABS ==========#
 		self.settings = ttk.Notebook(self)
-		# Preference Tab
-		self.pref_tab = PreferenceFrame(self.settings)
-		self.pref_tab.pack(fill="both",expand=True)
-		self.settings.add(self.pref_tab,text="Preferences")
-
-		self.settings.grid(row=1,column=0,columnspan=2,ipadx=0,ipady=0,sticky="nsew")
 		# Log Tab
 		self.log_tab = tk.Frame(self.settings)
 		self.log_tab.pack(fill="both",expand=True)
@@ -119,6 +113,12 @@ class App(tk.Tk):
 		# Bind the scrollbar
 		self.gcode_log.config(yscrollcommand=self.gcode_scrollbar)
 		self.gcode_scrollbar.config(command=self.gcode_log.yview)
+
+		# Preference Tab
+		self.pref_tab = PreferenceFrame(self.settings)
+		self.pref_tab.pack(fill="both",expand=True)
+		self.settings.add(self.pref_tab,text="Preferences")
+		self.settings.grid(row=1,column=0,columnspan=2,ipadx=0,ipady=0,sticky="nsew")
 
 	def refresh_available_ports_list(self,event=None):
 		print "Refreshing ..."

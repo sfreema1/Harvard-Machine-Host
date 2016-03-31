@@ -212,9 +212,11 @@ class LayerBuildWindow(tk.Toplevel):
 		self.destroy()
 
 	def select_square(self):
+		print "Rectangle selected"
 		self.varsDict["Pattern"].set("Rectangle")
 
 	def select_circle(self):
+		print "Ellipse selected"
 		self.varsDict["Pattern"].set("Ellipse")
 
 	def select_freeform(self):
