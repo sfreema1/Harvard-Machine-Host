@@ -138,27 +138,39 @@ class App(tk.Tk):
 		self.connectNewmarkMenu.insert_command("end",label="Disconnect", command=self.disconnect_newmark)
 		self.connectArduinoMenu.insert_command("end",label="Disconect", command=self.disconnect_arduino)
 
-	def connect_arduino(self, port):
-		self.ser_arduino = serial.Serial(port,ARDUINO_BAUDRATE)
-		print self.ser_arduino.name
-		self.isConnected_arduino = True
-		self.refresh_available_ports_list()
-
-	def disconnect_arduino(self):
-		if self.isConnected_arduino == True:
-			self.ser_arduino.close()
-			self.refresh_available_ports_list()
-
 	def connect_newmark(self,port):
-		self.ser_newmark = serial.Serial(port,NEWMARK_BAUDRATE)
-		print self.ser_newmark.name
-		self.isConnected_newmark = True
-		self.refresh_available_ports_list()
+		if self.isConnected_newmark == False:
+			try:
+				self.ser_newmark = serial.Serial(port,NEWMARK_BAUDRATE)
+			except serial.SerialException:
+				self.createPopUpMsgBox("Error","No serial available")
+				return
+			print self.ser_newmark.name
+			self.isConnected_newmark = True
+			self.refresh_available_ports_list()
 
 	def disconnect_newmark(self):
 		if self.isConnected_newmark == True:
 			self.ser_newmark.close()
 			self.refresh_available_ports_list()
+			self.isConnected_newmark = False
+
+	def connect_arduino(self, port):
+		if self.isConnected_arduino == False:
+			try:
+				self.ser_arduino = serial.Serial(port,ARDUINO_BAUDRATE)
+			except serial.SerialException:
+				self.createPopUpMsgBox("Error","No serial available")
+				return
+			self.isConnected_arduino = True
+			self.refresh_available_ports_list()
+
+	def disconnect_arduino(self):
+		if self.isConnected_arduino == True:
+			self.ser_arduino.close()
+			self.refresh_available_ports_list()
+			self.isConnected_arduino = False
+
 
 
 def list_serial_ports():

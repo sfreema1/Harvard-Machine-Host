@@ -28,8 +28,16 @@ NEWMARK_BAUDRATE = 19200 # bits per sec
 # Arduino Serial Baudrate
 ARDUINO_BAUDRATE = 115200 # bits per sec
 
+# Build Surface Start - This is the start)x, start_y of the build surface (well plate, single dish, glass) 
+BUILD_START = [127.76, 85.47] # [start_x, start_y] in mm
+
+# Microvalve Offsets
+VALVE_OFFSETS = [[0,0], [-0.2,9.8], [0,19.6], [-0.7,32]] # Valve 1, Valve 2, Valve 3, Valve 4 offsets in (x,y) in mm 
+
 # Translate between XYZ axes and ABC axes
 HOME_TRANSLATE = {"X" : "A", "Y": "B", "Z": "C", "XYZ": "ABC", "XY": "AB", "YZ": "BC", "XZ": "AC"}
+
+#
 
 ########## COLORS (Hex Color Codes) ############
 CTRL_TOP_BG = "#D3F723" 
