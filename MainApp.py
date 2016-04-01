@@ -7,7 +7,7 @@ from GlobalVariables import *
 from ControlPanel import *
 from PreferenceFrame import *
 
-"""New Comment"""
+"""Even Newer Comment"""
 
 
 class App(tk.Tk):
