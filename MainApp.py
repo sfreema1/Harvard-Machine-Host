@@ -7,6 +7,8 @@ from GlobalVariables import *
 from ControlPanel import *
 from PreferenceFrame import *
 
+"""New Comment"""
+
 
 class App(tk.Tk):
 	""" The App class represents the entire app and is the master to all """
