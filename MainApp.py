@@ -1,5 +1,5 @@
 import Tkinter as tk
-#from Tkinter import *
+from Tkinter import *
 import ttk
 import serial
 from LayerList import *
