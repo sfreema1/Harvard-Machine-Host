@@ -1,5 +1,3 @@
-import Tkinter as tk
-
 ######### Globals ######
 # I guess you don't need to declare global if you import 
 # Maybe you just need global if you are going to want to modify these variables in the program
@@ -19,6 +17,10 @@ DIMENSIONS = {	"Glass":{"Dimension":[200,200]},
 				"48 Well":{"Layout":[6,8], "Well Depth":17.4, "Well Diameter":11.05, "Dimension":[127.89,85.6,20.02], "A1 Offset":[10.08,18.16], "Center-to-Center Spacing":13.08},
 				"96 Well":{"Layout":[8,12], "Well Depth":10.67, "Well Diameter":6.35, "Dimension":[127.8,85.5,14.2], "A1 Offset":[11.2,14.3], "Center-to-Center Spacing":9} }
 
+# Newmark Build Dimensions
+BUILD_LENGTH = 160.0 # mm
+BUILD_HEIGHT = 160.0 # mm
+
 # Newmark: Steps per mm
 N_STEPS_PER_MM = 31496.063		# motor steps per mm
 
@@ -29,10 +31,12 @@ NEWMARK_BAUDRATE = 19200 # bits per sec
 ARDUINO_BAUDRATE = 115200 # bits per sec
 
 # Build Surface Start - This is the start)x, start_y of the build surface (well plate, single dish, glass) 
-BUILD_START = [127.76, 85.47] # [start_x, start_y] in mm
+BUILD_START = [1.0,1.0] # [start_x, start_y] in mm in canvas/frame coordinates
 
 # Microvalve Offsets
 VALVE_OFFSETS = [[0,0], [-0.2,9.8], [0,19.6], [-0.7,32]] # Valve 1, Valve 2, Valve 3, Valve 4 offsets in (x,y) in mm 
+VALVE_OFFSETS_X = [0,-9.8,-19.6,-32]
+VALVE_OFFSETS_Y = [0,-0.2,0,-0.7]
 
 # Translate between XYZ axes and ABC axes
 HOME_TRANSLATE = {"X" : "A", "Y": "B", "Z": "C", "XYZ": "ABC", "XY": "AB", "YZ": "BC", "XZ": "AC"}
@@ -67,6 +71,18 @@ ACT_WELL_COLOR = "#0D4D4D" #"#407F7F"
 SEL_WELL_COLOR = "#0D4D4D"
 
 TEXT_PREVIEW_COLOR = "#FBF100"
+
+# Freeform button colors #
+# Unselected: #FFFFFF (White)
+# Channel 1: #DE0600 (Red)
+# Channel 2: #032F95 (Blue)
+# Channel 3: #09B400 (Green)
+# Channel 4: #FFA100 (Orange)
+UNSELECTED = "#FFFFFF"
+CH1 = "#DE0600"
+CH2 = "#032F95"
+CH3 = "#09B400"
+CH4 = "#FFA100"
 
 ######### FONT ##########
 CTRL_FONT = ('Arial',10,'bold')

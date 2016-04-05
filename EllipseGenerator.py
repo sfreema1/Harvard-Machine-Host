@@ -1,124 +1,70 @@
 import math
 from matplotlib import pyplot as plt
 
-""" 
-A Note: The following algorith to generate conics is derived from projective geometry.
-There are point conics and line conics.
-
-Ex:
-
-Ellipse: 
-a-radius = 2
-b-radius = 1
-
-BBox = 4 X 4 centered at the origin
-The horizontal of the bbox is split into 10 division (11 points)
-The vertical of the bbox is split into 20 divison (21 points)
-
-The ellipse is drawn by finding the intersection point of two lines, which we will call U and V.
-
-U is a line which always passes through (a,0), and whose other point starts at (a,a) moves the top, left, and bottom
-sides of the bbox in a CCW fashion 
-
-V is a line which always passes through (-a,0) and whose other point starts at (a,0) and along the right, top, 
-bottom sides (and back up the right side to finish) CCW and ends back at (a,0)
-
-
-
-"""
-
-def make_ellipse(center, dim, sections):
+def make_ellipse(center, dim, resolution):
 	center_x = center[0] 	# in mm
 	center_y = center[1]	# in mm
 	dim_x = dim[0]			# in mm
 	dim_y = dim[1]	 		# in mm
-
-	n = sections
-
-	a = float(dim_x/2)		# x axes radius
-	b = float(dim_y/2)		# y axes radius
-
-	del_x = a/n
-	del_y = b/n
-
 	x_list = []
 	y_list = []
 
-	start_x = -a
-	start_y = 0
+	res = resolution 		# in microns
+	res_mm = res/1000. 		# in mm
 
-	# Calculate the point perpective
-	x_c = start_x
-	y_c = start_y
+	a = dim_x/2.			# x-axis radius
+	b = dim_y/2.			# y-axis radius
 
-	h_x_list = []
-	h_y_list = []
+	while a>=0 and b>=0:
+		start_x = a + center_x	# in mm
+		start_y = 0 + center_y	# in mm
 
-	v_x_list = []
-	v_y_list = []
+		x_list += [start_x]
+		y_list += [start_y]
 
-	for i in range(n-1):
-		x_c += del_x
-		y_c += del_y
+		r_eff = (a+b)/2 		# average of the two radii
 
-		# Append to h_lists
-		h_x_list.append(x_c)
-		h_y_list.append(0)
+		circum_eff = 2*math.pi*r_eff
+		n = int(round(circum_eff/res_mm))
+		if n == 0:
+			break
+		del_theta = 2*math.pi/n
 
-		# Append to v_lists
-		v_x_list.append(-a)
-		v_y_list.append(y_c)
+		if (b-res_mm) < 0:
+			x_c = -a + center_x
+			k = a/res_mm  
+			for j in range(2*int(k)-1):
+				x_c += res_mm
+				x_list.append(x_c)
+				y_list.append(center_y)
+			break
 
-	# Calculate the points of the ellipse/circle
-	# h_list lines are calculated to all pass through (0,-b)
-	# v_list lines are calculated to all pass through (0,b)
+		if (a-res_mm) < 0:
+			y_c = -b + center_y
+			k = b/res_mm  
+			for j in range(2*int(k)-1):
+				y_c += res_mm
+				x_list.append(center_x)
+				y_list.append(y_c)
+			break
 
-	h_m = []
-	h_b = []
-	v_m = []
-	v_b = []
+		theta_c = 0
+		for i in range(n-1):
+			theta_c += del_theta
+			new_x = a*math.cos(theta_c) + center_x
+			new_y = b*math.sin(theta_c) + center_y
+			x_list.append(new_x)
+			y_list.append(new_y)
 
-	for i in range(n-1):
-		m1, b1 = calculate_line(h_x_list[i], h_y_list[i], 0, -b)
-		m2, b2 = calculate_line(v_x_list[i], v_y_list[i], 0, b)
-		new_x, new_y = get_intersection(m1, b1, m2, b2)
-		x_list.append(new_x)
-		y_list.append(new_y)
+		a -= res_mm
+		b -= res_mm
 
+	return x_list, y_list
 
-
-	return [x_list, y_list]
-	
-	
-def calculate_line(x1, y1, x2, y2):
-	""" Calculate the slope """
-	try:
-		m = float((y2 - y1))/(x2-x1)
-	except(ZeroDivisionError):
-		print "Error: Division by zero"
-		return None
-
-	b = y1-m*x1
-
-	return [m,b]
-
-def get_intersection(m1, b1,m2 ,b2):
-	if m1 == m2:
-		print "Error: Division by zero."
-		return
-	x = -1*float(b1-b2)/(m1-m2)
-	y = -(-b2*m1 + b1*m2)/(m1-m2)
-
-	return [x,y]
 
 if __name__ == "__main__":
 
-	result = make_ellipse([0,0],[10,10],50)
-	x3 = result[0]
-	y3 = result[1]
-
-	plt.scatter(x3,y3,color="green")
+	r = make_ellipse([10,14], [3,10], 200)
+	plt.scatter(r[0],r[1],color="red")
+	plt.plot(r[0],r[1],color="black")
 	plt.show()
-
-
-

@@ -33,7 +33,7 @@ def make_rectangle(center, dim, resolution):
 	last_dir_travelled = 0 # initial step=0 north=1, east=2, south=3, west=4
 
 	if (x_droplets == 0 and y_droplets == 0):
-		return [x_droplets, y_droplets, x_list, y_list]
+		return [x_list, y_list]
 
 	elif y_droplets == 0:
 		for e in range(east):
@@ -43,7 +43,7 @@ def make_rectangle(center, dim, resolution):
 				x_list.append(x_c)
 				y_list.append(y_c)
 		last_dir_travelled = 2 # traveled east last
-		return [x_droplets, y_droplets, x_list, y_list]
+		return [x_list, y_list]
 
 	elif x_droplets == 0:
 		for n in range(north):
@@ -53,7 +53,7 @@ def make_rectangle(center, dim, resolution):
 				x_list.append(x_c)
 				y_list.append(y_c)
 		last_dir_travelled = 1 # traveled north last
-		return [x_droplets, y_droplets, x_list, y_list]
+		return [x_list, y_list]
 
 
 	"""
@@ -85,7 +85,7 @@ def make_rectangle(center, dim, resolution):
 		a. 
 	"""
 
-	print "After adding the fist step, the first rectangle will be %r->>%r->>%r->>%r"%(north,east,south,west)
+	#print "After adding the fist step, the first rectangle will be %r->>%r->>%r->>%r"%(north,east,south,west)
 
 	for i in range(int(math.ceil(y_droplets/2.))):
 		for n in range(north):
@@ -95,7 +95,7 @@ def make_rectangle(center, dim, resolution):
 			x_list.append(x_c)
 			y_list.append(y_c)
 		last_dir_travelled = 1
-		print "Last traveled north"
+		#print "Last traveled north"
 
 		for e in range(east):
 			x_c += (res_mm) 
@@ -104,7 +104,7 @@ def make_rectangle(center, dim, resolution):
 			x_list.append(x_c)
 			y_list.append(y_c)
 		last_dir_travelled = 2
-		print "Last traveled east"
+		#print "Last traveled east"
 
 		for s in range(south):
 			# x_c does not change
@@ -113,7 +113,7 @@ def make_rectangle(center, dim, resolution):
 			x_list.append(x_c)
 			y_list.append(y_c)
 		last_dir_travelled = 3
-		print "Last traveled south"
+		#print "Last traveled south"
 
 		for w in range(west):
 			x_c -= (res_mm) 
@@ -122,7 +122,7 @@ def make_rectangle(center, dim, resolution):
 			x_list.append(x_c)
 			y_list.append(y_c)
 		last_dir_travelled = 4
-		print "Last traveled west"
+		#print "Last traveled west"
 
 		if (north-2) >= 0:
 			# x_c does not change
@@ -131,18 +131,18 @@ def make_rectangle(center, dim, resolution):
 			x_list.append(x_c)
 			y_list.append(y_c)
 			last_dir_travelled = 0
-			print "Took first step north to begin next inner rectangle"
+			#print "Took first step north to begin next inner rectangle"
 				
 		north -= 2
 		east -= 2
 		south -= 2
 		west -= 2
 
-		print "After adding the first step, the next rectangle will be %r->>%r->>%r->>%r"%(north,east,south,west)
-		print "Round %i complete!"%(i+1)
+		#print "After adding the first step, the next rectangle will be %r->>%r->>%r->>%r"%(north,east,south,west)
+		#print "Round %i complete!"%(i+1)
 
 		if (north == 0 or east == 0):
-			print "Detected a possible end condition"
+			#print "Detected a possible end condition"
 			if north == 0 and last_dir_travelled == 0:
 				print 
 				for e in range(east):
@@ -153,8 +153,7 @@ def make_rectangle(center, dim, resolution):
 					y_list.append(y_c)
 					last_dir_travelled = 2
 
-
-	return [x_droplets, y_droplets, x_list, y_list]
+	return [x_list, y_list]
 
 if __name__ == "__main__":
 	# ========= Droplet array cases ========== #
@@ -177,13 +176,11 @@ if __name__ == "__main__":
 	#result = make_rectangle([0,0],[1.,1.8],100)
 
 	# Even X Even X == Y
-	result = make_rectangle([0,0], [0.9,0.9],100)
+	result = make_rectangle([5,3.234], [0.9,0.9],100)
 	# Odd X Odd X == Y
 	#result = make_rectangle([0,0], [1,1],100)
-
-	print """The rectangle will be a %rX%r droplet array."""%(result[0]+1 ,result[1]+1)
-	x_result = result[2]
-	y_result = result[3]
+	x_result = result[0]
+	y_result = result[1]
 
 	plt.plot(x_result,y_result,label="Print")
 	plt.scatter(x_result,y_result,label="Print")
