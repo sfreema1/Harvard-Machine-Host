@@ -1,7 +1,12 @@
 import Tkinter as tk
 import ttk
+import tkMessageBox
 from LayerWindow import *
 from GlobalVariables import *
+from RectangleGenerator import *
+from EllipseGenerator import *
+from matplotlib import pyplot as plt
+from coordinates import *
 
 class LayerListFrame(tk.Frame):
 	""" The LayerListFrame class contains the buttons and listbox that are modified when a user adds a layer to be printed. It interacts with the PlanExperiment class to pass information to visualize the experiment """
@@ -15,6 +20,9 @@ class LayerListFrame(tk.Frame):
 			self.master = parent # master is App unless specified otherwise
 		else:
 			self.master = master
+
+		# ========== IMPORTED VARIABLES ========== #
+		self.b_config = self.master.b_config
 
 		# Top frame contains a label and the buttons that control the listbox
 		self.top_frame = tk.Frame(self,bg=LAYER_TOP_BG)
@@ -147,13 +155,115 @@ class LayerListFrame(tk.Frame):
 			self.layer_listbox.insert("end",self.master.exp[row][col][layer]["Layer Name"].get())
 
 	def print_well(self):
-		pass
+		row = self.master.sel_ind[0]
+		col = self.master.sel_ind[1]
+		layer_len = len(self.master.exp[row][col])
+		print "There are %i objects to print"%layer_len
+		if layer_len == 0:
+			self.createPopUpMsgBox("Error","There is nothing in this well to print.")
+			return
+		else:
+			filename = "Code_well%s%i.txt"%(ABC[row],col)
+			code = open(filename,'w')
+			self._print_init_statement(code)
+
+			x_list = []
+			y_list = []
+
+			well = self.master.exp[row][col]
+			print "Printing parameters for the well"
+			print "Well type: %s" % self.b_config
+			well_diam = DIMENSIONS[self.b_config]["Well Diameter"]
+			print "Well diameter: %r"% well_diam
+			a1_offset_x = DIMENSIONS[self.b_config]["A1 Offset"][1]
+			print "A1 column offset is %r"% a1_offset_x
+			a1_offset_y = DIMENSIONS[self.b_config]["A1 Offset"][0]
+			print "A1 row offset is %r"% a1_offset_y
+			c_to_c = DIMENSIONS[self.b_config]["Center-to-Center Spacing"]
+			print "Center-center spacing is %r"%c_to_c
+			well_center_x = BUILD_START[0] + a1_offset_x + col*c_to_c
+			well_center_y = BUILD_START[1] + a1_offset_y + row*c_to_c
+			print "The well center is at (%r,%r)" % (well_center_x, well_center_y)
+
+			for layer in range(layer_len):
+				# Getting all the layer parameters
+				pattern = well[layer]["Pattern"].get()
+				print "The pattern to be printed is %s" %pattern
+				channel = well[layer]["Channel"].get()
+				valve_offset_x = VALVE_OFFSETS_X[channel-1]
+				valve_offset_y = VALVE_OFFSETS_Y[channel-1]
+				print "The printer will use channel %i" %channel
+				res = well[layer]["Resolution"].get()
+				print "The shape will be printed with a %r micron resolution" %res
+				h_align = well[layer]["Horizontal Alignment"].get()
+				v_align = well[layer]["Vertical Alignment"].get()
+				print "Alignment parameters: (h,v) = (%i,%i)" %(h_align,v_align)
+				offset_x = well[layer]["X Placement"].get()
+				offset_y = well[layer]["Y Placement"].get()
+				center_x = well_center_x + (h_align*(well_diam/4.)) + offset_x - valve_offset_x
+				center_y = well_center_y + (v_align*(well_diam/4.)) + offset_y - valve_offset_y
+				print "The center of the shape will be at (%r,%r)" % (center_x,center_y)
+				dim_x = well[layer]["X Dimension"].get()
+				dim_y = well[layer]["Y Dimension"].get()
+				print "The dimensions of the shape are (%r,%r)" % (dim_x,dim_y)
+
+				if pattern == "Rectangle":
+					print "printing a rectangle ..."
+					x, y = make_rectangle([center_x,center_y], [dim_x,dim_y] , res)
+					x_list += x
+					y_list += y
+					
+				if pattern == "Ellipse":
+					print "printing an ellipse"
+					x, y = make_ellipse([center_x,center_y], [dim_x,dim_y] , res)
+					x_list += x
+					y_list += y
+			# After all printing coordinates are calculated, convert them to Newmark coordinates
+				x_list, y_list = transform(x_list,y_list)
+			# Now print them to the file
+				self._print_coordinates(code,x_list,y_list,channel)
+
+
 
 	def print_all(self):
-		pass
+		row = DIMENSIONS[self.b_config]["Layout"][0]
+		col = DIMENSIONS[self.b_config]["Layout"][1]
+		#print row, col
+		max_layer_len = 0	# the current max layer length of all the wells
+		for i in range(row):
+			for j in range(col):
+				cand_len = len(self.master.exp[i][j])	# A well may potentially have a value greater than the current max layer length
+				#print cand_len
+				if cand_len > max_layer_len:
+					max_layer_len = cand_len
+		if max_layer_len == 0:
+			self.createPopUpMsgBox("Error","There is nothing to print.")
+			return
+		else:
+			filename = "Code_%s"%self.b_config
+			print filename
+
+		print max_layer_len
+
+	def _print_init_statement(self,code):
+		code.write('HM; BG XY; AM XY; MG_BGX;\n')
+		code.write("DP 0,0;MG_BGX;\n")
+
+	def _print_coordinates(self, code, x, y, channel):
+		len_x = len(x)
+		len_y = len(y)
+		assert len_x == len_y, "There are not the same amount of x and y coordinates to print."
+		for i in range(len_x):
+			write_str = "PA %.5f,%.5f; BG XY; MC XY; SB %i; WT 2; CB %i; MG_BGX\n" % (x[i], y[i], channel, channel)
+			code.write(write_str)
+
 
 	def debug(self):
 		pass
+
+	def createPopUpMsgBox(self, title, msg):
+		tkMessageBox.showinfo(title, msg)
+
 
 
 if __name__ == "__main__":
