@@ -5,7 +5,7 @@ from LayerWindow import *
 from GlobalVariables import *
 from RectangleGenerator import *
 from EllipseGenerator import *
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from coordinates import *
 
 class LayerListFrame(tk.Frame):
@@ -158,12 +158,12 @@ class LayerListFrame(tk.Frame):
 		row = self.master.sel_ind[0]
 		col = self.master.sel_ind[1]
 		layer_len = len(self.master.exp[row][col])
-		print "There are %i objects to print"%layer_len
+		#print "There are %i objects to print"%layer_len
 		if layer_len == 0:
 			self.createPopUpMsgBox("Error","There is nothing in this well to print.")
 			return
 		else:
-			filename = "Code_well%s%i.txt"%(ABC[row],col)
+			filename = "Code_well%s%i.txt"%(ABC[row],col+1)
 			code = open(filename,'w')
 			self._print_init_statement(code)
 
@@ -171,50 +171,50 @@ class LayerListFrame(tk.Frame):
 			y_list = []
 
 			well = self.master.exp[row][col]
-			print "Printing parameters for the well"
-			print "Well type: %s" % self.b_config
+			#print "Printing parameters for the well"
+			#print "Well type: %s" % self.b_config
 			well_diam = DIMENSIONS[self.b_config]["Well Diameter"]
-			print "Well diameter: %r"% well_diam
+			#print "Well diameter: %r"% well_diam
 			a1_offset_x = DIMENSIONS[self.b_config]["A1 Offset"][1]
-			print "A1 column offset is %r"% a1_offset_x
+			#print "A1 column offset is %r"% a1_offset_x
 			a1_offset_y = DIMENSIONS[self.b_config]["A1 Offset"][0]
-			print "A1 row offset is %r"% a1_offset_y
+			#print "A1 row offset is %r"% a1_offset_y
 			c_to_c = DIMENSIONS[self.b_config]["Center-to-Center Spacing"]
-			print "Center-center spacing is %r"%c_to_c
+			#print "Center-center spacing is %r"%c_to_c
 			well_center_x = BUILD_START[0] + a1_offset_x + col*c_to_c
 			well_center_y = BUILD_START[1] + a1_offset_y + row*c_to_c
-			print "The well center is at (%r,%r)" % (well_center_x, well_center_y)
+			#print "The well center is at (%r,%r)" % (well_center_x, well_center_y)
 
 			for layer in range(layer_len):
 				# Getting all the layer parameters
 				pattern = well[layer]["Pattern"].get()
-				print "The pattern to be printed is %s" %pattern
+				#print "The pattern to be printed is %s" %pattern
 				channel = well[layer]["Channel"].get()
 				valve_offset_x = VALVE_OFFSETS_X[channel-1]
 				valve_offset_y = VALVE_OFFSETS_Y[channel-1]
-				print "The printer will use channel %i" %channel
+				#print "The printer will use channel %i" %channel
 				res = well[layer]["Resolution"].get()
-				print "The shape will be printed with a %r micron resolution" %res
+				#print "The shape will be printed with a %r micron resolution" %res
 				h_align = well[layer]["Horizontal Alignment"].get()
 				v_align = well[layer]["Vertical Alignment"].get()
-				print "Alignment parameters: (h,v) = (%i,%i)" %(h_align,v_align)
+				#print "Alignment parameters: (h,v) = (%i,%i)" %(h_align,v_align)
 				offset_x = well[layer]["X Placement"].get()
 				offset_y = well[layer]["Y Placement"].get()
 				center_x = well_center_x + (h_align*(well_diam/4.)) + offset_x - valve_offset_x
 				center_y = well_center_y + (v_align*(well_diam/4.)) + offset_y - valve_offset_y
-				print "The center of the shape will be at (%r,%r)" % (center_x,center_y)
+				#print "The center of the shape will be at (%r,%r)" % (center_x,center_y)
 				dim_x = well[layer]["X Dimension"].get()
 				dim_y = well[layer]["Y Dimension"].get()
-				print "The dimensions of the shape are (%r,%r)" % (dim_x,dim_y)
+				#print "The dimensions of the shape are (%r,%r)" % (dim_x,dim_y)
 
 				if pattern == "Rectangle":
-					print "printing a rectangle ..."
+					#print "printing a rectangle ..."
 					x, y = make_rectangle([center_x,center_y], [dim_x,dim_y] , res)
 					x_list += x
 					y_list += y
 					
 				if pattern == "Ellipse":
-					print "printing an ellipse"
+					#print "printing an ellipse"
 					x, y = make_ellipse([center_x,center_y], [dim_x,dim_y] , res)
 					x_list += x
 					y_list += y
@@ -241,9 +241,9 @@ class LayerListFrame(tk.Frame):
 			return
 		else:
 			filename = "Code_%s"%self.b_config
-			print filename
+			#print filename
 
-		print max_layer_len
+		#print max_layer_len
 
 	def _print_init_statement(self,code):
 		code.write('HM; BG XY; AM XY; MG_BGX;\n')
@@ -254,7 +254,7 @@ class LayerListFrame(tk.Frame):
 		len_y = len(y)
 		assert len_x == len_y, "There are not the same amount of x and y coordinates to print."
 		for i in range(len_x):
-			write_str = "PA %.5f,%.5f; BG XY; MC XY; SB %i; WT 2; CB %i; MG_BGX\n" % (x[i], y[i], channel, channel)
+			write_str = "PA %.5f,%.5f; BG XY; MC XY; SB %i; WT 2; CB %i; MG_BGX\n" % (N_STEPS_PER_MM*x[i], N_STEPS_PER_MM*y[i], channel, channel)
 			code.write(write_str)
 
 

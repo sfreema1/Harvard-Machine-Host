@@ -13,10 +13,15 @@ class FreeformFrame(tk.Toplevel):
 		else:
 			self.master = master
 		# ============ IMPORTED VARIABLES =========== #
-		# TEST PARAMETERS
-		self.res = 200 # microns
-		self.dim_x = 10 # mm
-		self.dim_y = 10 # mm
+		if settings:
+			self.settings = settings
+			self.res = self.settings["Resolution"].get()
+			self.dim_x = self.settings["X Dimension"].get()
+			self.dim_y = self.settings["Y Dimension"].get()
+		else:
+			self.res = 200 # microns
+			self.dim_x = 10 # mm
+			self.dim_y = 10 # mm
 		self.c_offset = 30		# Px - Adds some spacing between the edge of the canvas and where items are draw
 		self.text_offset = 8 	# Px - Adds some spacing beween the edge of the canvas and where text is placed
 		# ===================== WINDOW VARIABLES ===================== #
