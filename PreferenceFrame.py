@@ -61,25 +61,63 @@ class PreferenceFrame(tk.Frame):
 		self.pressure_int4.pack()
 		
 
-		ch1_checkVar = tk.IntVar()
-		ch2_checkVar = tk.IntVar()
-		ch3_checkVar = tk.IntVar()
-		ch4_checkVar = tk.IntVar()
+		self.checkVar = tk.IntVar()
 
-		ch1_check = tk.Checkbutton(self.lastFrame1,text = "Channel 1",variable = ch1_checkVar, onvalue = 1, offvalue = 0)
-		ch2_check = tk.Checkbutton(self.lastFrame1,text = "Channel 2",variable = ch2_checkVar, onvalue = 1, offvalue = 0)
-		ch3_check = tk.Checkbutton(self.lastFrame1,text = "Channel 3",variable = ch3_checkVar, onvalue = 1, offvalue = 0)
-		ch4_check = tk.Checkbutton(self.lastFrame1,text = "Channel 4",variable = ch4_checkVar, onvalue = 1, offvalue = 0)
+		ch1_check = tk.Radiobutton(self.lastFrame1,text = "Channel 1",variable = self.checkVar, value = 1)
+		ch2_check = tk.Radiobutton(self.lastFrame1,text = "Channel 2",variable = self.checkVar, value = 2)
+		ch3_check = tk.Radiobutton(self.lastFrame1,text = "Channel 3",variable = self.checkVar, value = 3)
+		ch4_check = tk.Radiobutton(self.lastFrame1,text = "Channel 4",variable = self.checkVar, value = 4)
 
 		ch1_check.pack()
 		ch2_check.pack()
 		ch3_check.pack()
 		ch4_check.pack()
 
-		self.start_internal1 = tk.Button(self.lastFrame1, text="Start", width=3, font=('Helvetica',12))
+		self.start_internal1 = tk.Button(self.lastFrame1, text="Start", width=3, font=('Helvetica',12),command = self.startInternal)
 		self.start_internal1.pack()
 
+	
+	def startInternal(self):
+		#closing = self.calculateClosing()
+		frequency_1 = self.ch1.freq_var.get()
+		frequency_2 = self.ch2.freq_var.get()
+		frequency_3 = self.ch3.freq_var.get()
+		frequency_4 = self.ch4.freq_var.get()
+		
+		period_1 = (1/frequency_1)*1000
+		period_2 = (1/frequency_2)*1000
+		period_3 = (1/frequency_3)*1000
+		period_4 = (1/frequency_4)*1000
 
+		closing_1 = period_1 - self.ch1.opening_var.get()/1000.0
+		closing_2 = period_2 - self.ch2.opening_var.get()/1000.0
+		closing_3 = period_3 - self.ch3.opening_var.get()/1000.0
+		closing_4 = period_4 - self.ch4.opening_var.get()/1000.0
+
+		self.channelNum = self.checkVar.get()
+		print (self.channelNum)
+		if self.channelNum == 1:
+			line = 'M2 V1 T%i O%d N%i'%(self.ch1.opening_var.get(),closing_1,self.ch1.drops_var.get())
+			print (line)
+			#self.master.ser_arduino.write(line +"\r\n")
+			return
+		elif self.channelNum == 2:
+			line = 'M2 V1 T%i O%d N%i'%(self.ch2.opening_var.get(),closing_2,self.ch2.drops_var.get())
+			print (line)
+			#self.master.ser_arduino.write(line +"\r\n")
+			return
+		elif self.channelNum == 3:
+			line = 'M2 V1 T%i O%d N%i'%(self.ch3.opening_var.get(),closing_3,self.ch3.drops_var.get())
+			print (line)
+			#self.master.ser_arduino.write(line +"\r\n")
+			return
+		elif self.channelNum == 4:
+			line = 'M2 V1 T%i O%d N%i'%(self.ch4.opening_var.get(),closing_4,self.ch4.drops_var.get())
+			print (line)
+			#self.master.ser_arduino.write(line +"\r\n")
+			return
+		else:
+			pass
 
 	def setPressure_int1(self):
 		pressure = self.pressureVar1.get()
@@ -225,12 +263,14 @@ class ValveControlFrame(tk.Frame):
 			return
 
 	def initialPressedEvent(self,event):
-		line = ''
+		line = 'M3 V%i S255'%self.valve_num
 		#self.master.ser_arduino.write(line +"\r\n")
 		print("Hello")
+		print(line)
 
 
 	def initialReleasedEvent(self, event):
-		line = ''
+		line = 'M3 V%i S0'%self.valve_num
 		#self.master.ser_arduino.write(line +"\r\n")
 		print("Good Bye")
+		print(line)
