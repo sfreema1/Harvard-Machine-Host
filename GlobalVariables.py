@@ -28,10 +28,10 @@ N_STEPS_PER_MM = 31496.063		# motor steps per mm
 NEWMARK_BAUDRATE = 19200 # bits per sec
 
 # Arduino Serial Baudrate
-ARDUINO_BAUDRATE = 115200 # bits per sec
+ARDUINO_BAUDRATE = 9600 # bits per sec
 
 # Build Surface Start - This is the start)x, start_y of the build surface (well plate, single dish, glass) 
-BUILD_START = [1.0,1.0] # [start_x, start_y] in mm in canvas/frame coordinates
+BUILD_START = [-6.0,8.5] # [start_x, start_y] in mm in canvas/frame coordinates
 
 # Microvalve Offsets
 VALVE_OFFSETS = [[0,0], [-0.2,9.8], [0,19.6], [-0.7,32]] # Valve 1, Valve 2, Valve 3, Valve 4 offsets in (x,y) in mm 

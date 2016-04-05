@@ -27,7 +27,7 @@ class App(tk.Tk):
 		self.w_x_offset = (self.scr_width-self.w_width)/2	# Pixel x offset for the Tk window
 		self.w_y_offset = (self.scr_height-self.w_height)/2	# Pixel y offset for the Tk window
 		# ========== USER VARIABLES ========== #
-		self.b_config = "96 Well" 															# A build surface/plate configuration
+		self.b_config = "6 Well" 															# A build surface/plate configuration
 		self.p_row = DIMENSIONS[self.b_config]["Layout"][0]									# Number of well rows
 		self.p_col = DIMENSIONS[self.b_config]["Layout"][1]									# Number of well columns
 		self.exp = [[[] for column in range(self.p_col)] for row in range(self.p_row)] 		# Initialization of 2D list where experimental layout information will be stored
@@ -160,7 +160,7 @@ class App(tk.Tk):
 		self.settings.grid(row=1,column=0,columnspan=2,ipadx=0,ipady=0,sticky="nsew")
 
 	def refresh_available_ports_list(self,event=None):
-		print "Refreshing ..."
+		#print "Refreshing ..."
 		list_ = list_serial_ports()
 		num_avail_ports = len(list_)
 		# Delete all items in the menu
@@ -175,7 +175,7 @@ class App(tk.Tk):
 			self.connectNewmarkMenu.insert_command(i+1,label=list_[i],command=lambda port=list_[i]:self.connect_newmark(port))
 			self.connectArduinoMenu.insert_command(i+1,label=list_[i],command=lambda port=list_[i]:self.connect_arduino(port))
 		self.connectNewmarkMenu.insert_command("end",label="Disconnect", command=self.disconnect_newmark)
-		self.connectArduinoMenu.insert_command("end",label="Disconect", command=self.disconnect_arduino)
+		self.connectArduinoMenu.insert_command("end",label="Disconnect", command=self.disconnect_arduino)
 
 	def connect_newmark(self,port):
 		if self.isConnected_newmark == False:
@@ -184,7 +184,7 @@ class App(tk.Tk):
 			except serial.SerialException:
 				self.createPopUpMsgBox("Error","No serial available")
 				return
-			print self.ser_newmark.name
+			#print self.ser_newmark.name
 			self.isConnected_newmark = True
 			self.refresh_available_ports_list()
 
@@ -236,7 +236,7 @@ Closing time is not a user-controllable parameter.
 
 Example: M1 V4 T750 - This will set valve #4 to remain open for 750 microseconds when pulses are received from the Newmark
 
-Command format: M2 Vx (T or P)s Os Nq
+Command format: M2 Vx (T or P)s Cs Nq
 This command sets opening and closing times for the microvalves in internal mode. Adding Nq to the command will caused the valves to run q times
 Opening time can be set in microseconds using 'T' or milliseconds using 'P'. Opening time can only be set in milliseconds.
 Both input methods have limits which are set in the firmware Configuration.h file. Default opening and closing times are loaded on initialization and can be found in
@@ -245,9 +245,9 @@ Please see the following examples to understand the command's use.
 
 Example: M2 V3 T500 - This will set valve #3 to open for 500 microseconds when it is run next. Other parameters are unchanged.
 Example: M2 V3 P500 - This will set valve #3 to open for 500 milliseconds when it is run next. Other parameters are unchanged.
-Example: M2 V3 O1000 - This will set the valve #3 to close for 1000 milliseconds. Other parameters are unchanged.
-Example: M2 V3 T600 O500 - This is will set valve #3 to open for 600 microseconds and close for 500 milliseconds. Other parameters are unchanged.
-Example: M2 V3 T755 O750 N10 - This will set valve #3 to open for 755 microseconds and close for 750 milliseconds. In additional, the valve will run this cycle 10 times.
+Example: M2 V3 C1000 - This will set the valve #3 to close for 1000 milliseconds. Other parameters are unchanged.
+Example: M2 V3 T600 C500 - This is will set valve #3 to open for 600 microseconds and close for 500 milliseconds. Other parameters are unchanged.
+Example: M2 V3 T755 C750 N10 - This will set valve #3 to open for 755 microseconds and close for 750 milliseconds. In additional, the valve will run this cycle 10 times.
 Example: M2 V3 N50 - This will run the microvalves 50 times. The opening and closing times used will be those last given or the default values.
 
 Command format: M90

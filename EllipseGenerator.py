@@ -1,5 +1,5 @@
 import math
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 
 def make_ellipse(center, dim, resolution):
 	center_x = center[0] 	# in mm

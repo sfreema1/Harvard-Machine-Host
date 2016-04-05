@@ -3,6 +3,7 @@ import ttk
 import tkMessageBox
 from PreviewWindow import *
 from GlobalVariables import *
+from FreeformFrame import *
 
 class LayerBuildWindow(tk.Toplevel):
 	""" The LayerBuildWindow class uses tk.Toplevel to create a user-interface for inputting layer information"""
@@ -22,6 +23,7 @@ class LayerBuildWindow(tk.Toplevel):
 		# Initialize the LayerBuildWindow
 		self.resizable(0,0) # Make the window non-resizable
 		self.geometry("410x400")
+		#self.grab_set()
 
 		# Set a flag that indicates whether the user is editing a layer - could also just check if prevSettings exist
 		if prevSettings:
@@ -221,6 +223,10 @@ class LayerBuildWindow(tk.Toplevel):
 
 	def select_freeform(self):
 		self.varsDict["Pattern"].set("Freeform")
+		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
+			self.createPopUpMsgBox("Error","Non-zero dimensions must be set to preview.")
+		else:
+			self.freeformWindow = FreeformFrame(self.master, **self.varsDict)
 
 	def createPopUpMsgBox(self, title, msg):
 		tkMessageBox.showinfo(title, msg)
