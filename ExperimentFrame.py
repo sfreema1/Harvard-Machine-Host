@@ -12,7 +12,7 @@ class ExperimentFrame(tk.Frame):
 		else:
 			self.master = master
 		# ===================== WINDOW VARIABLES ===================== #
-		self.tags_list = []		# Stores tags bound to wells
+
 		# ========== IMPORTED VARIABLES ========== #
 		# Get well/print surface type
 		self.b_config = self.master.b_config	# Print build config
@@ -33,12 +33,6 @@ class ExperimentFrame(tk.Frame):
 		self.well_plate = WellPlate(self,self.master)
 		self.well_plate.config(bg=EXP_BG, width=self.width, height=self.height, highlightthickness=0, borderwidth=0)
 		self.well_plate.pack(fill="both", expand=True)
-		
-		# Add wells
-		for row in range(self.well_plate.num_rows):
-			for col in range(self.well_plate.num_cols):
-				self.well = Well(self.well_plate, [row,col])
-				self.tags_list.append(self.well.tag)
 
 
 class WellPlate(tk.Canvas):
@@ -52,18 +46,62 @@ class WellPlate(tk.Canvas):
 		else:
 			self.master = master
 
+		self.tags_list = []		# Stores tags bound to wells
 		# ========== IMPORTED VARIABLES ========== #
 		self.frame_width = parent.width 		# px
-		self.frame_height = parent.height		# px
+		self.frame_height = parent.height		# p
+
+		# ========== WELL PLATE PARAMETERS ========== #
+		self.c_offset = 25 									# Offset padding between the well plate and the frame
+		self.text_offset = 8
+		self.tag = "Plate"
+
+		self.calculate_dimensions()
+		self.draw()
+
+
+		# ========== CLASS METHODS ========== #
+	def show_coordinates(self, event=None):
+		x_coord = self.mm_per_pixel*(event.x-self.c_offset)
+		y_coord = self.mm_per_pixel*(event.y-self.c_offset)
+		self.itemconfigure(self.xy_label, text="Coord: (X = %.3f mm, Y = %.3f mm)" % (x_coord, y_coord))
+
+	def deselect_all_wells(self,event=None):
+		tags_list = self.tags_list
+		num_tags = len(tags_list)
+		for i in range(num_tags):
+			self.itemconfig(tags_list[i],fill=WELL_COLOR)
+
+	def select_well(self, event, loc):
+		self.master.sel_ind = loc
+		self.master.layer_list_frame.sel_well_label.config(text="Selected well: %s%i" % (ABC[loc[0]],loc[1]+1))
+		self.master.layer_list_frame.update_listbox()
+		self.deselect_all_wells()
+		self.itemconfig("Well%s%i"%(ABC[loc[0]],loc[1]+1),fill=SEL_WELL_COLOR)
+
+	def draw(self):
+		# Well label placement
+		self.w_label_coord = [self.text_offset,self.frame_height-self.text_offset]
+		# XY display placement
+		self.xy_label_coord = [self.frame_width-self.text_offset, self.frame_height-self.text_offset]
+		self.bind("<Motion>", self.show_coordinates)
+		# Draw itself
+		self.create_rectangle(self.bbox,fill=PLATE_BG,tags=self.tag)
+		# Draw well label
+		self.w_label = self.create_text(self.w_label_coord,text="Build surface: %s"%self.b_config, anchor="sw",fill="black")
+		# Draw coordinate display
+		self.xy_label = self.create_text(self.xy_label_coord,text="Coord: (X = ? mm, Y = ? mm)", anchor="se", fill="black")
+		# Add wells
+		for row in range(self.num_rows):
+			for col in range(self.num_cols):
+				self.well = Well(self, [row,col])
+				self.tags_list.append(self.well.tag)
+
+	def calculate_dimensions(self):
 		self.b_config = self.master.b_config 		# Kind of build surface (well or glass or dish etc)
 		self.num_rows = self.master.p_row
 		self.num_cols = self.master.p_col
-
-		# ========== WELL PLATE PARAMETERS ========== #
-		self.tag = "Plate"
 		self.layout = [self.num_rows, self.num_cols]
-		self.c_offset = 25 									# Offset padding between the well plate and the frame
-		self.text_offset = 8
 		self.length = self.frame_width-2*self.c_offset								# px
 		self.pixel_per_mm = self.length/(DIMENSIONS[self.b_config]["Dimension"][0]) 	# (scale) px per mm
 		self.mm_per_pixel = (DIMENSIONS[self.b_config]["Dimension"][0])/self.length 	# (scale) mm per px
@@ -85,40 +123,11 @@ class WellPlate(tk.Canvas):
 		self.end_x = self.c_offset+self.length
 		self.end_y = self.c_offset+self.width
 
-		# Well label placement
-		self.w_label_coord = [self.text_offset,self.frame_height-self.text_offset]
+	def redraw(self):
+		self.tags_list = []		# create new tags list
+		self.calculate_dimensions()
+		self.draw()
 
-		# XY display placement
-		self.xy_label_coord = [self.frame_width-self.text_offset, self.frame_height-self.text_offset]
-		self.bind("<Motion>", self.show_coordinates)
-
-		# Draw itself
-		self.create_rectangle(self.bbox,fill=PLATE_BG,tags=self.tag)
-
-		# Draw well label
-		self.w_label = self.create_text(self.w_label_coord,text="Build surface: %s"%self.b_config, anchor="sw",fill="black")
-
-		# Draw coordinate display
-		self.xy_label = self.create_text(self.xy_label_coord,text="Coord: (X = ? mm, Y = ? mm)", anchor="se", fill="black")
-
-		# ========== CLASS METHODS ========== #
-	def show_coordinates(self, event=None):
-		x_coord = self.mm_per_pixel*(event.x-self.c_offset)
-		y_coord = self.mm_per_pixel*(event.y-self.c_offset)
-		self.itemconfigure(self.xy_label, text="Coord: (X = %.3f mm, Y = %.3f mm)" % (x_coord, y_coord))
-
-	def deselect_all_wells(self,event=None):
-		tags_list = self.parent.tags_list
-		num_tags = len(tags_list)
-		for i in range(num_tags):
-			self.itemconfig(tags_list[i],fill=WELL_COLOR)
-
-	def select_well(self, event, loc):
-		self.master.sel_ind = loc
-		self.master.layer_list_frame.sel_well_label.config(text="Selected well: %s%i" % (ABC[loc[0]],loc[1]+1))
-		self.master.layer_list_frame.update_listbox()
-		self.deselect_all_wells()
-		self.itemconfig("Well%s%i"%(ABC[loc[0]],loc[1]+1),fill=SEL_WELL_COLOR)
 
 
 class Well(object):

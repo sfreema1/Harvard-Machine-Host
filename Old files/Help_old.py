@@ -1,7 +1,7 @@
 from Tkinter import *
     
 
-def messageHelp(self):
+def messageHelp():
     mH = Toplevel()
     mH.resizable()
     mH.geometry("400x175")
@@ -85,3 +85,7 @@ def mQuit(self):
     if mExit == True:
         self.parent.destroy()
         return
+
+root = Tk()
+messageHelp()
+root.mainloop()

@@ -1,12 +1,11 @@
 import Tkinter as tk
 import ttk
 import tkMessageBox
-from LayerWindow import *
 from GlobalVariables import *
 from RectangleGenerator import *
 from EllipseGenerator import *
-#from matplotlib import pyplot as plt
 from coordinates import *
+from ToolWindows import *
 
 class LayerListFrame(tk.Frame):
 	""" The LayerListFrame class contains the buttons and listbox that are modified when a user adds a layer to be printed. It interacts with the PlanExperiment class to pass information to visualize the experiment """
@@ -223,8 +222,6 @@ class LayerListFrame(tk.Frame):
 			# Now print them to the file
 				self._print_coordinates(code,x_list,y_list,channel)
 
-
-
 	def print_all(self):
 		row = DIMENSIONS[self.b_config]["Layout"][0]
 		col = DIMENSIONS[self.b_config]["Layout"][1]
@@ -265,12 +262,9 @@ class LayerListFrame(tk.Frame):
 		tkMessageBox.showinfo(title, msg)
 
 
-
 if __name__ == "__main__":
 
 	root = tk.Tk()
-	layer_list = LayerListFrame(root)
-	layer_list.pack(fill="both", expand=True)
 	root.mainloop()
 
 
