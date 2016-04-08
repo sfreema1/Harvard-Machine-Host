@@ -62,6 +62,7 @@ class PreferenceFrame(tk.Frame):
 		
 
 		self.checkVar = tk.IntVar()
+		self.checkVar.set(1)
 
 		ch1_check = tk.Radiobutton(self.lastFrame1,text = "Channel 1",variable = self.checkVar, value = 1)
 		ch2_check = tk.Radiobutton(self.lastFrame1,text = "Channel 2",variable = self.checkVar, value = 2)
@@ -79,7 +80,7 @@ class PreferenceFrame(tk.Frame):
 	
 	def startInternal(self):
 		#closing = self.calculateClosing()
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			# In Hz
 			frequency_1 = self.ch1.freq_var.get()
 			frequency_2 = self.ch2.freq_var.get()
@@ -134,7 +135,7 @@ class PreferenceFrame(tk.Frame):
 			self.master.ser_arduinio.write("M90"+"\r\n") # return internal mode
 
 	def setPressure_int1(self):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			pressure = self.pressureVar1.get()
 			pressure1 = PRESSURE_DICT.get(pressure)
 			#print (pressure1)
@@ -144,7 +145,7 @@ class PreferenceFrame(tk.Frame):
 			return
 
 	def setPressure_int2(self):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			pressure = self.pressureVar2.get()
 			pressure1 = PRESSURE_DICT.get(pressure)
 			#print (pressure1)
@@ -154,7 +155,7 @@ class PreferenceFrame(tk.Frame):
 			return
 
 	def setPressure_int3(self):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			pressure = self.pressureVar3.get()
 			pressure1 = PRESSURE_DICT.get(pressure)
 			#print (pressure1)
@@ -164,7 +165,7 @@ class PreferenceFrame(tk.Frame):
 			return
 
 	def setPressure_int4(self):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			pressure = self.pressureVar4.get()
 			pressure1 = PRESSURE_DICT.get(pressure)
 			#print (pressure1)
@@ -259,7 +260,7 @@ class ValveControlFrame(tk.Frame):
 		self.drops_unit.grid(row=5,column=2)
 
 	def setOpening(self):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			opening = self.opening_var.get()
 			#print (opening)
 			valve = self.valve_num
@@ -273,18 +274,18 @@ class ValveControlFrame(tk.Frame):
 
 	def defIndef_func(self):
 		if self.defIndef.get() == 1:
-			self.defIndef.set(2)
-			self.drops_sb.config(state = "disabled")
+			#self.defIndef.set(2)
+			self.drops_sb.config(state = "normal")
 			#print (self.defIndef.get())
 			return
 		else:
-			self.defIndef.set(1)
-			self.drops_sb.config(state = "normal")
+			#self.defIndef.set(1)
+			self.drops_sb.config(state = "disabled")
 			#print (self.defIndef.get())
 			return
 
 	def initialPressedEvent(self,event):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			line = 'M3 V%i S255'%self.valve_num
 			self.master.ser_arduino.write("M91"+"\r\n")
 			self.master.ser_arduino.write(line +"\r\n")
@@ -293,7 +294,7 @@ class ValveControlFrame(tk.Frame):
 
 
 	def initialReleasedEvent(self, event):
-		if self.master.isConnected_arduino:
+		if self.master.arduinoIsConnected:
 			line = 'M3 V%i S0'%self.valve_num
 			self.master.ser_arduino.write(line +"\r\n")
 			self.master.ser_arduino.write("M90"+"\r\n")

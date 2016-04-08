@@ -8,9 +8,9 @@ ABC = {0:"A", 1:"B", 2:"C", 3:"D", 4:"E", 5:"F", 6:"G", 7:"H", 8:"I", 9:"J"}
 # If the key contains a list, its has a more rectangular geometry. The first entry is the width and the second entry is the height (X,Y)
 # Dimension = [Plate Length, Plate Width, Plate Height]
 DIMENSIONS = {	"Glass":{"Dimension":[200,200]}, 
-				"100mm":{"Well Diameter":80.5},
-				"60mm":{"Well Diameter":51.4}, 
-				"35mm":{"Well Diameter":33.9},
+				"100mm Dish":{"Well Diameter":80.5},
+				"60mm Dish":{"Well Diameter":51.4}, 
+				"35mm Dish":{"Well Diameter":33.9},
 				"6 Well":{"Layout":[2,3], "Well Depth":17.4, "Well Diameter":34.80, "Dimension":[127.76,85.47,20.27], "A1 Offset":[23.16,24.76], "Center-to-Center Spacing":39.12},
 				"12 Well":{"Layout":[3,4], "Well Depth":17.53, "Well Diameter":22.11, "Dimension":[127.89,85.6,20.02], "A1 Offset":[16.79,24.94], "Center-to-Center Spacing":26.01},
 				"24 Well":{"Layout":[4,6], "Well Depth":17.4, "Well Diameter":15.62, "Dimension":[127.89,85.6,19.69], "A1 Offset":[13.84,17.52], "Center-to-Center Spacing":19.3},
@@ -84,11 +84,11 @@ CH2 = "#032F95"
 CH3 = "#09B400"
 CH4 = "#FFA100"
 
+HELP_WINDOW_BG = "#666666"
+HELP_WINDOW_FG = "#FFFFFF"
+
+ABOUT_WINDOW_BG = "#666666"
+ABOUT_WINDOW_FG = "#FFFFFF"
+
 ######### FONT ##########
 CTRL_FONT = ('Arial',10,'bold')
-
-
-
-
-
-

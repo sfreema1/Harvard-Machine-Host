@@ -1,4 +1,5 @@
 import math
+import Tkinter as tk
 #from matplotlib import pyplot as plt
 
 def make_ellipse(center, dim, resolution):
@@ -64,7 +65,8 @@ def make_ellipse(center, dim, resolution):
 
 if __name__ == "__main__":
 
-	r = make_ellipse([10,14], [3,10], 200)
-	plt.scatter(r[0],r[1],color="red")
-	plt.plot(r[0],r[1],color="black")
-	plt.show()
+	#r = make_ellipse([10,14], [3,10], 200)
+	#plt.scatter(r[0],r[1],color="red")
+	#plt.plot(r[0],r[1],color="black")
+	#plt.show()
+	help(tk.Button)

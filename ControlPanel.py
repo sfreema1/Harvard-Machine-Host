@@ -198,49 +198,49 @@ class ControlPanel(tk.Frame):
 			self.gcode_entry.delete(0,"end")
 
 	def move_y_pos(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.xy_var.get())
 			command = "PR ,%f; BG B" % (N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def move_y_neg(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.xy_var.get())
 			command = "PR ,%f; BG B" % (-N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def move_x_pos(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.xy_var.get())
 			command = "PR %f; BG A" % (N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def move_x_neg(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.xy_var.get())
 			command = "PR %f; BG A" % (-N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def move_z_pos(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.z_var.get())
 			command = "PR ,,%f; BG C" % (-N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def move_z_neg(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			dist = float(self.z_var.get())
 			command = "PR ,,%f; BG C" % (N_STEPS_PER_MM*dist)
 			print command
 			self.master.ser_newmark.write(command+"\r")
 
 	def home(self):
-		if self.master.isConnected_newmark:
+		if self.master.newmarkIsConnected:
 			abc = HOME_TRANSLATE[self.home_var.get()]
 			command = "HM; BG%s" % abc
 			print command
