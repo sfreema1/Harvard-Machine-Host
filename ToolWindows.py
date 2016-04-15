@@ -4,6 +4,7 @@ import tkMessageBox
 from GlobalVariables import *
 from ExperimentFrame import *
 from CanvasObjects import *
+from FreeformFrame import *
 
 class LayerBuildWindow(tk.Toplevel):
 	""" The LayerBuildWindow class uses tk.Toplevel to create a user-interface for inputting layer information"""
@@ -48,25 +49,32 @@ class LayerBuildWindow(tk.Toplevel):
 							"Channel":tk.IntVar(), "Resolution":tk.DoubleVar(),
 							"X Placement":tk.DoubleVar(), "Y Placement":tk.DoubleVar(),
 							"Horizontal Alignment":tk.IntVar(), "Vertical Alignment":tk.IntVar(),
-							"X Dimension":tk.DoubleVar(), "Y Dimension":tk.DoubleVar()}
+							"X Dimension":tk.DoubleVar(), "Y Dimension":tk.DoubleVar(), "Coordinates":None}
 
 		# Default Variable Values Dictionary
 		self.defaultVarsDict = {	"Layer Name":"New Layer", "Pattern":"Ellipse",
 									"Channel":1, "Resolution": 200,
 									"X Placement":0, "Y Placement":0,
 									"Horizontal Alignment":0, "Vertical Alignment":0,
-									"X Dimension":0, "Y Dimension":0}
+									"X Dimension":0, "Y Dimension":0,"Coordinates":None}
 
 		# If editing a layer, load all the previously set variables
 		if self.editFlag:
 			for label in prevSettings.keys():
-				self.varsDict[label].set(prevSettings[label].get())
+				if label == "Coordinates":
+					self.varsDict[label] = prevSettings[label][:]
+					print self.varsDict[label]
+				else:
+					self.varsDict[label].set(prevSettings[label].get())
 		# If not, load default values
 		else:
 			for label in self.defaultVarsDict.keys():
-				self.varsDict[label].set(self.defaultVarsDict[label])
-
-		# Four Labelframes are used to organize the window:
+				if label == "Coordinates":
+					self.varsDict[label] = []
+				else:
+					self.varsDict[label].set(self.defaultVarsDict[label])
+		"""
+		Four Labelframes are used to organize the window:
 		# 1. General
 			# a. Entry Label
 			# b. Entry Field
@@ -94,6 +102,7 @@ class LayerBuildWindow(tk.Toplevel):
 			# d. Y Dimension Spinbox
 			# e. Diameter Label
 			# f. Diameter Spinbox
+		"""
 
 		########## LabelFrames ##########
 		##### General section LabelFrame #####
@@ -203,6 +212,7 @@ class LayerBuildWindow(tk.Toplevel):
 				self.master.exp[row][col].append(self.varsDict)
 			self.master.layer_list_frame.update_listbox()
 			self.destroy()
+			print self.varsDict["Coordinates"]
 
 	def preview(self):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
@@ -226,7 +236,11 @@ class LayerBuildWindow(tk.Toplevel):
 		if self.varsDict["X Dimension"].get() == 0 or self.varsDict["Y Dimension"].get() == 0:
 			self.createPopUpMsgBox("Error","Non-zero dimensions must be set to preview.")
 		else:
-			self.freeformWindow = FreeformFrame(self.master, **self.varsDict)
+			self.freeformWindow = FreeformWindow(self,self.master, **self.varsDict)
+
+	def _clear_freeform(self,event=None):
+		print 
+
 
 	def createPopUpMsgBox(self, title, msg):
 		tkMessageBox.showinfo(title, msg)

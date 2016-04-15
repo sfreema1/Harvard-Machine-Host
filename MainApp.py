@@ -254,6 +254,7 @@ class App(tk.Tk):
 			self.destroy()
 			return
 
+# ==================== EXTERNAL FUNCTIONS ==================== #
 
 def list_serial_ports():
 	""" 
