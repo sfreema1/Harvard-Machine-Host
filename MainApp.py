@@ -160,6 +160,14 @@ class App(tk.Tk):
 		self.settings.add(self.pref_tab,text="Preferences")
 		self.settings.grid(row=1,column=0,columnspan=2,ipadx=0,ipady=0,sticky="nsew")
 
+	def _reload_app_vars(self,b_config):
+		self.b_config = b_config
+		self.p_row = DIMENSIONS[b_config]["Layout"][0]													# Number of well rows
+		self.p_col = DIMENSIONS[b_config]["Layout"][1]													# Number of well columns
+		self.exp = [[[] for column in range(self.p_col)] for row in range(self.p_row)] 	# Initialization of 2D list where experimental layout information will be stored
+		self.exp_frame.well_plate.delete("all")
+		self.exp_frame.well_plate.redraw()
+
 	def new_experiment(self):
 		""" 
 		The new_experiment() must:
@@ -170,7 +178,7 @@ class App(tk.Tk):
 		"""
 		response = tkMessageBox.askyesno(title="New Experiment", message="All unsaved data will be lost. Are you sure you want to continue?")
 		if response == True:
-			# This object will handle all the 
+			# This object will handle all the rest
 			self.selection_window = ExpConfigSelectionWindow(self) # Look at the select method for all the variables that are changed
 
 	def save_experiment(self):

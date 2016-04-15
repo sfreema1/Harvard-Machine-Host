@@ -5,8 +5,6 @@ from GlobalVariables import *
 from ExperimentFrame import *
 from CanvasObjects import *
 
-
-
 class LayerBuildWindow(tk.Toplevel):
 	""" The LayerBuildWindow class uses tk.Toplevel to create a user-interface for inputting layer information"""
 	def __init__(self, parent, master=None, layer_ind=None, **prevSettings):
@@ -314,52 +312,6 @@ class PreviewWindow(tk.Toplevel):
 			self.tags_list.append(shape.tag)
 
 
-class CanvasWell(tk.Canvas):
-	""" The CanvasWell class represents the well where everything is drawn inside """
-	def __init__(self, parent, master=None, **kwargs):
-		tk.Canvas.__init__(self, parent, **kwargs)
-		# Specify hierarchy - IMPORTANT TO DO FIRST
-		self.parent = parent # parent widget
-		if master == None:
-			self.master = parent
-		else:
-			self.master = master
-
-		# ========== CANVAS PARAMETERS ========== #
-		self.c_offset = 25						# Adds some spacing between the edge of the canvas and where items are draw
-		self.text_offset = 8 					# Adds some spacing beween the edge of the canvas and where text is placed
-		self.b_config = self.master.b_config 		# Kind of build surface (well or glass or dish etc)
-		# Delimits the draw area
-		self.bbox = [self.c_offset, self.c_offset, self.parent.w_width-self.c_offset, self.parent.w_height-self.c_offset]
-		self.diameter = DIMENSIONS[self.b_config]["Well Diameter"]
-		self.center_x = self.parent.w_center_x
-		self.center_y = self.parent.w_center_y
-		self.center = self.parent.w_center
-		# Scaling
-		self.px_per_mm = (self.bbox[3]-self.bbox[0])/self.diameter
-		self.mm_per_px = self.diameter/(self.bbox[3]-self.bbox[0])
-		# Label placement
-		self.label_coord = [self.text_offset, self.text_offset]
-		# XY display placement
-		self.xy_label_coord = [self.parent.w_width-self.text_offset, self.parent.w_height-self.text_offset]
-		
-		# ========== CANVAS WELL INITIALIZATION ========== #
-		self.config(bg=PLATE_BG, width=self.parent.w_width, height=self.parent.w_height, highlightthickness=0, borderwidth=0)
-		self.bind("<Motion>", self.show_coordinates)
-		# Draw itself (The well)
-		self.well = self.create_oval(self.bbox,fill=WELL_COLOR)
-		# Draw label for build type
-		self.label = self.create_text(self.label_coord, text="Print Build Surface: %s" % self.b_config, anchor="nw", fill=TEXT_PREVIEW_COLOR)
-		# Draw coordinate display
-		self.xy_label = self.create_text(self.xy_label_coord,text="Coord: (X = ? mm, Y = ? mm)", anchor="se", fill=TEXT_PREVIEW_COLOR)
-
-		# ========== CLASS METHODS ========== #
-	def show_coordinates(self, event=None):
-		x_coord = self.mm_per_px*(event.x-(self.parent.w_width/2.0))
-		y_coord = self.mm_per_px*(event.y-(self.parent.w_height/2.0))
-		self.itemconfigure(self.xy_label, text="Coord: (X = %.3f mm, Y = %.3f mm)" % (x_coord, y_coord))
-
-
 
 class HelpWindow(tk.Toplevel):
 	""" The HelpWindow class generates a tk.Toplevel to display help information. """
@@ -508,19 +460,14 @@ class ExpConfigSelectionWindow(tk.Toplevel):
 		self.update_listbox()
 
 	def update_listbox(self):
-		self.selection_options = sorted(DIMENSIONS.keys())
+		self.selection_options = DIMENSIONS.keys()
 		for key in self.selection_options:
 			self.selection_list.insert("end",key)
 
 	def select(self,event=None):
 		selection = self.selection_list.get("anchor")		# The selection as a string
 		if selection:
-			self.master.b_config = selection
-			self.master.p_row = DIMENSIONS[selection]["Layout"][0]													# Number of well rows
-			self.master.p_col = DIMENSIONS[selection]["Layout"][1]													# Number of well columns
-			self.master.exp = [[[] for column in range(self.master.p_col)] for row in range(self.master.p_row)] 	# Initialization of 2D list where experimental layout information will be stored
+			self.master._reload_app_vars(selection)
 			self.destroy()
-			self.master.exp_frame.well_plate.delete("all")
-			self.master.exp_frame.well_plate.redraw()
 			
 			
