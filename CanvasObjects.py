@@ -95,7 +95,33 @@ class WellPlate(tk.Canvas):
 		self.calculate_dimensions()
 		self.draw()
 
+class SquareButton(object):
+	""" The SquareButton is a square canvas button"""
+	def __init__(self,canvas,text,start_x,start_y,width,height):
+		self.canvas = canvas
+		self.tag = text
 
+		self.width = width
+		self.height = height
+		# Create bbox
+		self.start_x = start_x
+		self.start_y = start_y
+		self.end_x = start_x+width
+		self.end_y = start_y+height
+		self.bbox = [self.start_x,self.start_y,self.end_x,self.end_y]
+
+		# Create text placement
+		self.text_x = self.start_x+width/2
+		self.text_y = self.start_y+height/2
+
+		# Draw itself
+		self.canvas.create_rectangle(self.bbox,fill="#832C65",tags=self.tag)
+
+		# Draw button label
+		self.canvas.create_text(self.text_x,self.text_y,text=self.tag,tags=self.tag,fill="white")
+
+	def bind_event(self,event,callback):
+		self.canvas.tag_bind(self.tag,event,callback)
 
 class Well(object):
 	""" The Well class is a single instance of the a well located on the plate. """

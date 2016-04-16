@@ -1,8 +1,9 @@
 import Tkinter as tk
 from GlobalVariables import * 
+from CanvasObjects import*
 import math
 
-class FreeformFrame(tk.Toplevel):
+class FreeformWindow(tk.Toplevel):
 	""" The FreeformFrame class creates a window for the selection of exact droplet placement for printing. """
 	def __init__(self, parent, master=None, **settings):
 		tk.Toplevel.__init__(self, parent)
@@ -29,21 +30,22 @@ class FreeformFrame(tk.Toplevel):
 		# ========= FRAME PARAMETERS ========= #
 		self.name = "Freeform Selection"					# Text that appears at the top of the window
 		self.w_width = 700										# Pixel width of main Tk window
-		self.w_height = 700										# Pixel height of main Tk window
+		self.w_height = 700									# Pixel height of main Tk window
 		self.w_center_x = self.w_width/2					# px coordinate (x) of center of window
 		self.w_center_y = self.w_height/2					# px coordinate (y) of center of window
-		self.w_x_offset = 100# (self.master.scr_width-self.w_width)/2	# Pixel x offset for the Tk window.
-		self.w_y_offset = 100# (self.master.scr_height-self.w_height)/2	# Pixel y offset for the Tk window.
+		self.w_x_offset = 100 # (self.master.scr_width-self.w_width)/2	# Pixel x offset for the Tk window.
+		self.w_y_offset = 100 # (self.master.scr_height-self.w_height)/2	# Pixel y offset for the Tk window.
 		# ========== CHANNEL BUTTON SPACING ========== #
 		self.buttons_x = int(math.ceil(1000.*self.dim_x/(self.res)))
 		self.buttons_y = int(math.ceil(1000.*self.dim_y/(self.res)))
 		self.selected = {}
+		# ========== USER VARIABLES ========== #
 
 		# ==================== CLASS INITIALIZATION ==================== #
 		# ========== TOPLEVEL WINDOW =========== #
 		self.wm_title(self.name)
 		self.geometry("%dx%d+%d+%d" % (self.w_width, self.w_height, self.w_x_offset, self.w_y_offset))
-		self.resizable(width=False,height=False)
+		self.resizable(width=True,height=True)
 
 		# ========== CANVAS CONFIGURATION ========== #
 		# Start CanvasWell a.k.a. tk.Canvas in disguise preconfigured with buttons for selection
@@ -54,6 +56,28 @@ class FreeformFrame(tk.Toplevel):
 		for col in range(self.buttons_x):
 			for row in range(self.buttons_y):
 				self.channel_button = ChannelButton(self.freeform_space,col,row)
+
+	def _export_coordinates(self,dictionary):
+		coordinates = dictionary.keys()
+		export_list = []
+		for key in coordinates:
+			c = key.split(',')
+			x = self.res*int(c[0])/1000.
+			y = self.res*int(c[1])/1000.
+			channel = dictionary[key]
+			export_list.append([x,y,channel])
+		return export_list
+
+	def submit(self,event=None):
+		self.parent.varsDict["Coordinates"] = self._export_coordinates(self.selected)
+		##print self.parent.varsDict["Coordinates"]
+		self.destroy()
+
+	def close(self,event=None):
+		self.destroy()
+
+	def _clear_selected(self):
+		self.selected.clear()
 
 
 class FreeformCanvas(tk.Canvas):
@@ -67,6 +91,8 @@ class FreeformCanvas(tk.Canvas):
 		else:
 			self.master = master
 		# ========== CANVAS PARAMETERS ========== #
+		self.width = self.parent.w_width
+		self.height = self.parent.w_height
 		self.c_offset = parent.c_offset		# Adds some spacing between the edge of the canvas and where items are draw
 		self.text_offset = parent.text_offset 	# Adds some spacing beween the edge of the canvas and where text is placed
 		# Delimints the draw area
@@ -96,6 +122,13 @@ class FreeformCanvas(tk.Canvas):
 		self.label = self.create_text(self.label_coord, text="Freeform Selection", anchor="nw", fill=TEXT_PREVIEW_COLOR)
 		# Draw coordinate display
 		self.xy_label = self.create_text(self.xy_label_coord,text="Coord: (X = ? mm, Y = ? mm)", anchor="se", fill=TEXT_PREVIEW_COLOR)
+
+		self.submit_button = SquareButton(self,"Submit",2.3*self.text_offset,self.height-3*self.text_offset,60,20)
+		self.submit_button.bind_event('<Button-1>',self.parent.submit)
+		self.cancel_button = SquareButton(self,"Cancel",12*self.text_offset,self.height-3*self.text_offset,60,20)
+		self.cancel_button.bind_event('<Button-1>',self.parent.close)
+
+
 
 	def show_coordinates(self, event=None):
 		x_coord = self.mm_per_px*(event.x-(self.parent.w_width/2.0))
@@ -141,7 +174,6 @@ class ChannelButton(object):
 		# Draw self
 		freeform_canvas.create_rectangle(self.bbox,tags=self.name,fill=UNSELECTED)
 		freeform_canvas.tag_bind(self.name,'<Button-1>', lambda event, loc=[self.x,self.y]:self.click_button(event,loc))
-		freeform_canvas.tag_bind(self.name,'<B1-Motion>', lambda event, loc=[self.x,self.y]:self.click_button(event,loc))
 
 	def click_button(self, event, loc):
 		x = loc[0]
@@ -165,5 +197,5 @@ class ChannelButton(object):
 if __name__ == "__main__":
 
 	root = tk.Tk()
-	fff = FreeformFrame(root)
+	fff = FreeformWindow(root)
 	root.mainloop()
